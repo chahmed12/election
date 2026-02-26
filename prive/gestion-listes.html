@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة اللوائح - الانتخابات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(-45deg, #0f172a, #1e293b, #0c4a6e, #164e63);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+        }
+
+        .font-inter {
+            font-family: 'Inter', sans-serif;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%
+            }
+
+            50% {
+                background-position: 100% 50%
+            }
+
+            100% {
+                background-position: 0% 50%
+            }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-input {
+            background: rgba(255, 255, 255, 0.06);
+            border: 2px solid rgba(255, 255, 255, 0.12);
+            transition: all 0.3s ease;
+        }
+
+        .admin-input:focus {
+            border-color: rgba(56, 189, 248, 0.5);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.1);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(14, 165, 233, 0.3);
+        }
+
+        .liste-admin-card {
+            transition: all 0.3s ease;
+        }
+
+        .liste-admin-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .candidat-item {
+            transition: all 0.2s ease;
+        }
+
+        .candidat-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .slide-up {
+            animation: slideUp 0.5s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body class="flex flex-col min-h-screen px-4 py-8 relative">
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <div class="absolute bg-sky-500/10 w-80 h-80 -top-20 -right-20 blur-3xl rounded-full"></div>
+        <div class="absolute bg-purple-500/10 w-64 h-64 bottom-0 -left-20 blur-3xl rounded-full"></div>
+    </div>
+
+    <div class="max-w-5xl w-full mx-auto relative z-10 flex-grow">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8 slide-up">
+            <a href="/admin.html"
+                class="glass-card px-5 py-2.5 rounded-xl text-white/80 hover:text-white font-bold text-sm flex items-center gap-2 transition font-inter">
+                ← لوحة الإدارة
+            </a>
+            <h1 class="text-2xl md:text-3xl font-black text-white">🏛️ إدارة اللوائح</h1>
+        </div>
+
+        <!-- Ajouter une liste -->
+        <div class="glass-card rounded-3xl p-6 md:p-8 mb-8 slide-up">
+            <h2 class="text-xl font-extrabold text-white mb-6 border-b border-white/10 pb-4">
+                ➕ إضافة لائحة جديدة
+                <span class="block text-sm font-inter text-gray-400 font-medium mt-1">Ajouter une nouvelle liste</span>
+            </h2>
+            <div class="grid md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-gray-300 text-xs font-bold mb-2">إسم اللائحة *</label>
+                    <input type="text" id="listeNom" placeholder="مثال: لائحة الأمل"
+                        class="admin-input w-full px-4 py-3 rounded-xl text-white outline-none text-right text-sm">
+                </div>
+                <div>
+                    <label class="block text-gray-300 text-xs font-bold mb-2">الشعار</label>
+                    <input type="text" id="listeSlogan" placeholder="شعار اللائحة..."
+                        class="admin-input w-full px-4 py-3 rounded-xl text-white outline-none text-right text-sm">
+                </div>
+                <div>
+                    <label class="block text-gray-300 text-xs font-bold mb-2">شعار (صورة)</label>
+                    <input type="file" id="listeLogo" accept="image/*"
+                        class="admin-input w-full px-4 py-3 rounded-xl text-white outline-none text-sm file:mr-3 file:bg-sky-500/20 file:border-0 file:text-sky-300 file:rounded-lg file:px-3 file:py-1 file:text-xs file:font-bold file:cursor-pointer">
+                </div>
+            </div>
+            <button onclick="addListe()"
+                class="btn-primary mt-5 px-8 py-3 rounded-xl text-white font-bold text-sm shadow-lg">
+                ✅ إضافة اللائحة
+            </button>
+        </div>
+
+        <!-- Listes existantes -->
+        <div id="listesContainer" class="space-y-6 slide-up">
+            <div class="text-center py-12">
+                <div
+                    class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-sky-500/30 border-t-sky-400 mb-4">
+                </div>
+                <p class="text-gray-400 font-inter">Chargement...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Ajouter candidat -->
+    <div id="candidatModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4"
+        style="background:rgba(0,0,0,0.7);backdrop-filter:blur(5px)">
+        <div class="glass-card rounded-3xl p-8 max-w-md w-full border border-white/20">
+            <h3 class="text-xl font-extrabold text-white mb-6 text-center">👤 إضافة مترشح</h3>
+            <input type="hidden" id="candidatListeId">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-gray-300 text-xs font-bold mb-2">الاسم الكامل *</label>
+                    <input type="text" id="candidatNom" placeholder="الاسم..."
+                        class="admin-input w-full px-4 py-3 rounded-xl text-white outline-none text-right text-sm">
+                </div>
+                <div>
+                    <label class="block text-gray-300 text-xs font-bold mb-2">المنصب / الدور</label>
+                    <select id="candidatRole"
+                        class="admin-input w-full px-4 py-3 rounded-xl text-white outline-none text-right text-sm bg-transparent">
+                        <option value="رئيس" class="bg-gray-800">رئيس</option>
+                        <option value="نائب الرئيس" class="bg-gray-800">نائب الرئيس</option>
+                        <option value="أمين المال" class="bg-gray-800">أمين المال</option>
+                        <option value="الكاتب العام" class="bg-gray-800">الكاتب العام</option>
+                        <option value="مستشار" class="bg-gray-800">مستشار</option>
+                        <option value="عضو" selected class="bg-gray-800">عضو</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-300 text-xs font-bold mb-2">صورة المترشح</label>
+                    <input type="file" id="candidatPhoto" accept="image/*"
+                        class="admin-input w-full px-4 py-3 rounded-xl text-white outline-none text-sm file:mr-3 file:bg-sky-500/20 file:border-0 file:text-sky-300 file:rounded-lg file:px-3 file:py-1 file:text-xs file:font-bold file:cursor-pointer">
+                </div>
+            </div>
+            <div class="flex gap-4 mt-6">
+                <button onclick="closeCandidatModal()"
+                    class="flex-1 py-3 rounded-xl border border-white/20 text-gray-300 font-bold text-sm hover:bg-white/5 transition">إلغاء</button>
+                <button onclick="addCandidat()"
+                    class="btn-primary flex-1 py-3 rounded-xl text-white font-bold text-sm shadow-lg">✅ إضافة</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center py-6 relative z-10 mt-8">
+        <p class="text-gray-600 text-xs font-inter">© 2026 — Admin Élections Marrakech</p>
+    </footer>
+
+    <script>
+        async function loadListes() {
+            try {
+                const res = await fetch('/api/admin/listes');
+                const listes = await res.json();
+                renderListes(listes);
+            } catch (e) {
+                document.getElementById('listesContainer').innerHTML = '<p class="text-red-400 text-center">خطأ في التحميل</p>';
+            }
+        }
+
+        function renderListes(listes) {
+            const container = document.getElementById('listesContainer');
+            if (!listes.length) {
+                container.innerHTML = `<div class="glass-card rounded-3xl p-12 text-center"><div class="text-6xl mb-4">📭</div><p class="text-gray-400 font-inter">لا توجد لوائح — أضف لائحة أعلاه</p></div>`;
+                return;
+            }
+
+            container.innerHTML = listes.map(l => `
+                <div class="liste-admin-card glass-card rounded-3xl p-6 md:p-8 border border-white/10">
+                    <div class="flex items-center justify-between mb-5 border-b border-white/10 pb-4">
+                        <div class="flex items-center gap-2">
+                            <button onclick="openCandidatModal(${l.id})" class="px-4 py-2 rounded-xl bg-sky-500/20 text-sky-400 border border-sky-500/20 hover:bg-sky-500/30 text-xs font-bold transition">➕ إضافة مترشح</button>
+                            <button onclick="deleteListe(${l.id})" class="px-4 py-2 rounded-xl bg-red-500/20 text-red-400 border border-red-500/20 hover:bg-red-500/30 text-xs font-bold transition">🗑️ حذف</button>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            ${l.logo_url ? `<img src="${l.logo_url}" class="w-14 h-14 rounded-xl object-cover border border-white/20">` : `<div class="w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center"><span class="text-2xl">🏛️</span></div>`}
+                            <div class="text-right">
+                                <h3 class="text-xl font-black text-white">${l.nom}</h3>
+                                ${l.slogan ? `<p class="text-gray-400 text-sm">${l.slogan}</p>` : ''}
+                            </div>
+                        </div>
+                    </div>
+
+                    ${l.candidats && l.candidats.length ? `
+                        <div class="space-y-2">
+                            ${l.candidats.map(c => `
+                                <div class="candidat-item flex items-center justify-between p-3 rounded-xl border border-white/5">
+                                    <button onclick="deleteCandidat(${c.id})" class="text-red-400/60 hover:text-red-400 transition text-sm">✖</button>
+                                    <div class="flex items-center gap-3">
+                                        <div class="text-right">
+                                            <p class="text-white font-bold text-sm">${c.nom}</p>
+                                            <p class="text-sky-300/60 text-xs font-inter">${c.role}</p>
+                                        </div>
+                                        ${c.photo_url
+                    ? `<img src="${c.photo_url}" class="w-12 h-12 rounded-full object-cover border-2 border-white/20">`
+                    : `<div class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center"><span>👤</span></div>`
+                }
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : '<p class="text-gray-500 text-sm text-center py-4 font-inter">لا يوجد مترشحين — أضف مترشح</p>'}
+                </div>
+            `).join('');
+        }
+
+        async function addListe() {
+            const nom = document.getElementById('listeNom').value.trim();
+            if (!nom) { Swal.fire({ icon: 'warning', title: 'الاسم مطلوب', confirmButtonColor: '#0ea5e9' }); return; }
+            const form = new FormData();
+            form.append('nom', nom);
+            form.append('slogan', document.getElementById('listeSlogan').value.trim());
+            const logoFile = document.getElementById('listeLogo').files[0];
+            if (logoFile) form.append('logo', logoFile);
+
+            try {
+                const res = await fetch('/api/admin/listes', { method: 'POST', body: form });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('listeNom').value = '';
+                    document.getElementById('listeSlogan').value = '';
+                    document.getElementById('listeLogo').value = '';
+                    loadListes();
+                    Swal.fire({ icon: 'success', title: 'تمت الإضافة', timer: 1500, showConfirmButton: false });
+                }
+            } catch (e) { Swal.fire({ icon: 'error', title: 'خطأ' }); }
+        }
+
+        async function deleteListe(id) {
+            const r = await Swal.fire({ title: 'تأكيد الحذف', text: 'سيتم حذف اللائحة وجميع مترشحيها', icon: 'warning', showCancelButton: true, confirmButtonText: 'حذف', cancelButtonText: 'إلغاء', confirmButtonColor: '#ef4444' });
+            if (!r.isConfirmed) return;
+            try {
+                await fetch(`/api/admin/listes/${id}`, { method: 'DELETE' });
+                loadListes();
+            } catch (e) { Swal.fire({ icon: 'error', title: 'خطأ' }); }
+        }
+
+        function openCandidatModal(listeId) {
+            document.getElementById('candidatListeId').value = listeId;
+            document.getElementById('candidatNom').value = '';
+            document.getElementById('candidatPhoto').value = '';
+            document.getElementById('candidatModal').classList.remove('hidden');
+        }
+        function closeCandidatModal() {
+            document.getElementById('candidatModal').classList.add('hidden');
+        }
+
+        async function addCandidat() {
+            const listeId = document.getElementById('candidatListeId').value;
+            const nom = document.getElementById('candidatNom').value.trim();
+            if (!nom) { Swal.fire({ icon: 'warning', title: 'الاسم مطلوب', confirmButtonColor: '#0ea5e9' }); return; }
+
+            const form = new FormData();
+            form.append('liste_id', listeId);
+            form.append('nom', nom);
+            form.append('role', document.getElementById('candidatRole').value);
+            const photoFile = document.getElementById('candidatPhoto').files[0];
+            if (photoFile) form.append('photo', photoFile);
+
+            try {
+                const res = await fetch('/api/admin/candidats', { method: 'POST', body: form });
+                const data = await res.json();
+                if (data.success) {
+                    closeCandidatModal();
+                    loadListes();
+                    Swal.fire({ icon: 'success', title: 'تمت الإضافة', timer: 1500, showConfirmButton: false });
+                }
+            } catch (e) { Swal.fire({ icon: 'error', title: 'خطأ' }); }
+        }
+
+        async function deleteCandidat(id) {
+            try {
+                await fetch(`/api/admin/candidats/${id}`, { method: 'DELETE' });
+                loadListes();
+            } catch (e) { Swal.fire({ icon: 'error', title: 'خطأ' }); }
+        }
+
+        document.getElementById('candidatModal').addEventListener('click', function (e) { if (e.target === this) closeCandidatModal(); });
+
+        loadListes();
+    </script>
+</body>
+
+</html>

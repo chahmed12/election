@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - الإدارة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(-45deg, #0f172a, #1e293b, #0c4a6e, #164e63);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+        }
+
+        .font-inter {
+            font-family: 'Inter', sans-serif;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%
+            }
+
+            50% {
+                background-position: 100% 50%
+            }
+
+            100% {
+                background-position: 0% 50%
+            }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-input {
+            background: rgba(255, 255, 255, 0.06);
+            border: 2px solid rgba(255, 255, 255, 0.12);
+            transition: all 0.3s ease;
+        }
+
+        .login-input:focus {
+            border-color: rgba(56, 189, 248, 0.5);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.1);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.4);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(56, 189, 248, 0.2)
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(56, 189, 248, 0.4)
+            }
+        }
+
+        .pulse-glow {
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+
+<body class="flex flex-col items-center justify-center px-4 py-8 relative">
+
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <div class="absolute bg-sky-500/10 w-80 h-80 -top-20 -right-20 blur-3xl rounded-full"></div>
+        <div class="absolute bg-indigo-500/10 w-72 h-72 bottom-0 -left-20 blur-3xl rounded-full"></div>
+    </div>
+
+    <div class="max-w-md w-full mx-auto relative z-10">
+
+        <!-- Back -->
+        <div class="mb-8 slide-up">
+            <a href="/"
+                class="glass-card px-5 py-2.5 rounded-xl text-white/80 hover:text-white font-bold text-sm inline-flex items-center gap-2 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span class="font-inter">الرئيسية</span>
+            </a>
+        </div>
+
+        <!-- Login Card -->
+        <div class="glass-card rounded-3xl p-8 md:p-10 slide-up">
+            <div class="text-center mb-8">
+                <div
+                    class="w-20 h-20 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-sky-500/20 to-indigo-500/20 border border-sky-500/20 flex items-center justify-center pulse-glow">
+                    <svg class="w-10 h-10 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-black text-white mb-2">لوحة الإدارة</h1>
+                <p class="text-gray-400 text-sm font-inter">Espace Administrateur</p>
+            </div>
+
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-gray-300 text-sm font-bold mb-2">اسم المستخدم / Identifiant</label>
+                    <input type="text" id="username" placeholder="admin"
+                        class="login-input w-full px-5 py-4 rounded-2xl text-white outline-none font-inter text-center">
+                </div>
+                <div>
+                    <label class="block text-gray-300 text-sm font-bold mb-2">كلمة المرور / Mot de passe</label>
+                    <input type="password" id="password" placeholder="••••••"
+                        class="login-input w-full px-5 py-4 rounded-2xl text-white outline-none font-inter text-center">
+                </div>
+                <button onclick="login()" id="loginBtn"
+                    class="btn-login w-full py-4 rounded-2xl text-white font-extrabold text-lg shadow-xl mt-2">
+                    🔓 دخول / Connexion
+                </button>
+                <p id="errorMsg" class="text-center text-sm font-bold hidden"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function login() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            const btn = document.getElementById('loginBtn');
+
+            if (!username || !password) {
+                errorMsg.textContent = 'يرجى ملء جميع الحقول';
+                errorMsg.className = 'text-center text-sm font-bold text-red-400';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = '⏳ جاري الدخول...';
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    window.location.href = '/admin.html';
+                } else {
+                    errorMsg.textContent = data.message || 'خطأ في الاتصال';
+                    errorMsg.className = 'text-center text-sm font-bold text-red-400';
+                }
+            } catch (e) {
+                errorMsg.textContent = 'خطأ في الاتصال بالخادم';
+                errorMsg.className = 'text-center text-sm font-bold text-red-400';
+            }
+            btn.disabled = false;
+            btn.textContent = '🔓 دخول / Connexion';
+        }
+
+        document.getElementById('password').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+        document.getElementById('username').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('password').focus(); });
+    </script>
+</body>
+
+</html>

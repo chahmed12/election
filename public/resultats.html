@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>النتائج - انتخابات مراكش</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(-45deg, #0f172a, #1e293b, #0c4a6e, #164e63);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+        }
+
+        .font-inter {
+            font-family: 'Inter', sans-serif;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%
+            }
+
+            50% {
+                background-position: 100% 50%
+            }
+
+            100% {
+                background-position: 0% 50%
+            }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .progress-bar {
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+        .result-card {
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-card.winner {
+            border-color: rgba(251, 191, 36, 0.5) !important;
+        }
+
+        .result-card.winner::after {
+            content: '🏆';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            font-size: 2rem;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .count-anim {
+            animation: countUp 0.8s ease-out forwards;
+        }
+
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+
+<body class="flex flex-col min-h-screen px-4 py-8 relative">
+
+    <!-- Particles -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <div class="absolute bg-sky-500/10 w-80 h-80 -top-20 -right-20 blur-3xl rounded-full"></div>
+        <div class="absolute bg-amber-500/10 w-72 h-72 bottom-0 -left-20 blur-3xl rounded-full"></div>
+    </div>
+
+    <div class="max-w-4xl w-full mx-auto relative z-10 flex-grow">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8 slide-up">
+            <a href="/"
+                class="glass-card px-5 py-2.5 rounded-xl text-white/80 hover:text-white font-bold text-sm flex items-center gap-2 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span class="font-inter">الرئيسية</span>
+            </a>
+            <h1 class="text-2xl md:text-3xl font-black text-white">📊 النتائج</h1>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-3 gap-4 mb-8 slide-up">
+            <div class="stat-card glass-card rounded-2xl p-5 text-center">
+                <p class="text-gray-400 text-xs font-bold font-inter uppercase tracking-wider mb-2">إجمالي الناخبين</p>
+                <p id="totalElecteurs" class="text-3xl font-black text-white font-inter count-anim">0</p>
+                <p class="text-gray-500 text-xs font-inter mt-1">Inscrits</p>
+            </div>
+            <div class="stat-card glass-card rounded-2xl p-5 text-center">
+                <p class="text-gray-400 text-xs font-bold font-inter uppercase tracking-wider mb-2">عدد الأصوات</p>
+                <p id="totalVotes" class="text-3xl font-black text-sky-400 font-inter count-anim">0</p>
+                <p class="text-gray-500 text-xs font-inter mt-1">Votes</p>
+            </div>
+            <div class="stat-card glass-card rounded-2xl p-5 text-center">
+                <p class="text-gray-400 text-xs font-bold font-inter uppercase tracking-wider mb-2">نسبة المشاركة</p>
+                <p id="tauxParticipation" class="text-3xl font-black text-amber-400 font-inter count-anim">0%</p>
+                <p class="text-gray-500 text-xs font-inter mt-1">Participation</p>
+            </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="glass-card rounded-3xl p-6 md:p-8 mb-8 slide-up">
+            <h2 class="text-xl font-extrabold text-white mb-6 text-right border-b border-white/10 pb-4">
+                توزيع الأصوات
+                <span class="block text-sm font-inter text-gray-400 font-medium mt-1">Répartition des votes</span>
+            </h2>
+            <div class="relative h-64 md:h-80">
+                <canvas id="voteChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Results List -->
+        <div id="resultsList" class="space-y-4 mb-8">
+            <div class="text-center py-12">
+                <div
+                    class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-sky-500/30 border-t-sky-400 mb-4">
+                </div>
+                <p class="text-gray-400 font-inter">Chargement des résultats...</p>
+            </div>
+        </div>
+
+        <!-- Auto-refresh -->
+        <div class="text-center slide-up">
+            <p class="text-gray-600 text-xs font-inter">
+                <span class="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse mr-1"></span>
+                Mise à jour automatique toutes les 10 secondes
+            </p>
+        </div>
+    </div>
+
+    <footer class="text-center py-6 relative z-10">
+        <p class="text-gray-600 text-xs font-inter">© 2026 — Élections Marrakech</p>
+    </footer>
+
+    <script>
+        let chart = null;
+        const COLORS = ['#0ea5e9', '#8b5cf6', '#f59e0b', '#ef4444', '#10b981', '#ec4899', '#6366f1', '#14b8a6'];
+
+        async function loadResults() {
+            try {
+                const res = await fetch('/api/resultats');
+                const data = await res.json();
+                renderStats(data);
+                renderChart(data);
+                renderList(data);
+            } catch (e) {
+                document.getElementById('resultsList').innerHTML = '<p class="text-red-400 text-center">خطأ في التحميل</p>';
+            }
+        }
+
+        function renderStats(data) {
+            document.getElementById('totalElecteurs').textContent = data.total_electeurs;
+            document.getElementById('totalVotes').textContent = data.total_votes;
+            const taux = data.total_electeurs > 0 ? Math.round((data.total_votes / data.total_electeurs) * 100) : 0;
+            document.getElementById('tauxParticipation').textContent = taux + '%';
+        }
+
+        function renderChart(data) {
+            const ctx = document.getElementById('voteChart').getContext('2d');
+            if (chart) chart.destroy();
+
+            const labels = data.listes.map(l => l.nom);
+            const votes = data.listes.map(l => l.votes);
+            const colors = data.listes.map((_, i) => COLORS[i % COLORS.length]);
+
+            if (!votes.some(v => v > 0)) {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.fillStyle = '#64748b';
+                ctx.font = '16px Cairo';
+                ctx.textAlign = 'center';
+                ctx.fillText('لا توجد أصوات بعد', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                return;
+            }
+
+            chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels,
+                    datasets: [{
+                        data: votes,
+                        backgroundColor: colors,
+                        borderWidth: 3,
+                        borderColor: '#0f172a',
+                        hoverBorderColor: '#fff',
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#94a3b8', font: { family: 'Cairo', size: 13, weight: '600' }, padding: 20 }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderList(data) {
+            const container = document.getElementById('resultsList');
+            const maxVotes = Math.max(...data.listes.map(l => l.votes), 1);
+
+            if (!data.listes.length) {
+                container.innerHTML = '<p class="text-gray-400 text-center py-8">لا توجد لوائح</p>';
+                return;
+            }
+
+            container.innerHTML = data.listes.map((l, i) => {
+                const pct = data.total_votes > 0 ? Math.round((l.votes / data.total_votes) * 100) : 0;
+                const isWinner = i === 0 && l.votes > 0;
+                const color = COLORS[i % COLORS.length];
+
+                return `
+                <div class="result-card glass-card rounded-2xl p-6 relative ${isWinner ? 'winner border-2' : 'border border-transparent'}" style="animation-delay:${i * 0.1}s">
+                    <div class="flex items-center gap-5 mb-4">
+                        ${l.logo_url
+                        ? `<img src="${l.logo_url}" alt="${l.nom}" class="w-14 h-14 rounded-xl object-cover border border-white/20">`
+                        : `<div class="w-14 h-14 rounded-xl flex items-center justify-center border border-white/10" style="background:${color}20"><span class="text-2xl">🏛️</span></div>`
+                    }
+                        <div class="flex-grow min-w-0">
+                            <div class="flex items-center justify-between gap-2">
+                                <h3 class="text-lg font-black text-white truncate">${l.nom}</h3>
+                                <span class="text-2xl font-black font-inter" style="color:${color}">${pct}%</span>
+                            </div>
+                            <p class="text-gray-400 text-sm font-inter">${l.votes} vote${l.votes > 1 ? 's' : ''}</p>
+                        </div>
+                    </div>
+                    <div class="bg-white/5 rounded-full h-3 overflow-hidden">
+                        <div class="h-full rounded-full progress-bar relative" style="width:${pct}%;background:${color}">
+                            <div class="absolute inset-0 bg-white/20" style="background-image:linear-gradient(45deg,rgba(255,255,255,0.1) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.1) 50%,rgba(255,255,255,0.1) 75%,transparent 75%);background-size:1rem 1rem"></div>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        loadResults();
+        setInterval(loadResults, 10000); // Auto-refresh every 10s
+    </script>
+</body>
+
+</html>

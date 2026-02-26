@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>انتخابات فرع الرابطة في مراكش 2026/2027</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(-45deg, #0f172a, #1e293b, #0c4a6e, #164e63);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+        }
+
+        .font-inter {
+            font-family: 'Inter', sans-serif;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .glass-card-light {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .glow-blue {
+            box-shadow: 0 0 40px rgba(56, 189, 248, 0.15);
+        }
+
+        .glow-amber {
+            box-shadow: 0 0 40px rgba(251, 191, 36, 0.15);
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(168, 85, 247, 0.1) 50%, rgba(251, 191, 36, 0.1) 100%);
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(56, 189, 248, 0.6);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .float-anim {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .pulse-glow {
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        .slide-up {
+            animation: slideUp 0.8s ease-out forwards;
+        }
+
+        .slide-up-delay-1 {
+            animation-delay: 0.15s;
+            opacity: 0;
+        }
+
+        .slide-up-delay-2 {
+            animation-delay: 0.3s;
+            opacity: 0;
+        }
+
+        .slide-up-delay-3 {
+            animation-delay: 0.45s;
+            opacity: 0;
+        }
+
+        .nav-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .nav-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+
+        .phone-input {
+            background: rgba(255, 255, 255, 0.06);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .phone-input:focus {
+            border-color: rgba(56, 189, 248, 0.6);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.4);
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+
+<body class="flex flex-col items-center justify-center px-4 py-8 relative overflow-hidden">
+
+    <!-- Particles Background -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div class="particle bg-sky-500/20 w-64 h-64 -top-20 -right-20 blur-3xl" style="position:absolute"></div>
+        <div class="particle bg-purple-500/10 w-96 h-96 bottom-0 -left-40 blur-3xl" style="position:absolute"></div>
+        <div class="particle bg-amber-500/10 w-72 h-72 top-1/3 right-1/4 blur-3xl float-anim" style="position:absolute">
+        </div>
+    </div>
+
+    <div class="max-w-2xl w-full mx-auto relative z-10 space-y-8">
+
+        <!-- Logo & Title -->
+        <div class="text-center slide-up">
+            <div
+                class="w-28 h-28 mx-auto mb-6 rounded-3xl glass-card-light flex items-center justify-center pulse-glow overflow-hidden">
+                <img id="siteLogo" src="" alt="Logo" class="w-full h-full object-cover rounded-3xl hidden">
+                <span id="logoFallback" class="text-5xl">🗳️</span>
+            </div>
+            <h1 id="siteTitle" class="text-4xl md:text-5xl font-black text-white mb-3 leading-tight drop-shadow-lg">
+                انتخابات فرع الرابطة<br>في <span
+                    class="text-transparent bg-clip-text bg-gradient-to-l from-sky-400 to-indigo-400">مراكش</span>
+            </h1>
+            <p class="text-sky-200/80 text-lg font-inter font-medium tracking-wider">2026 / 2027</p>
+            <div class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-sm">
+                <span id="statusDot" class="w-3 h-3 rounded-full bg-green-400 animate-pulse"></span>
+                <span id="statusText" class="text-green-300 font-bold font-inter">التصويت مفتوح</span>
+            </div>
+        </div>
+
+        <!-- Phone Verification Card -->
+        <div class="glass-card rounded-3xl p-8 md:p-10 slide-up slide-up-delay-1 glow-blue">
+            <div class="text-center mb-8">
+                <div
+                    class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-500/20 to-indigo-500/20 border border-sky-500/20 mb-4">
+                    <svg class="w-8 h-8 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-extrabold text-white mb-2">تحقق من رقم هاتفك</h2>
+                <p class="text-gray-400 text-sm font-inter">Vérifiez votre numéro pour accéder au vote</p>
+            </div>
+
+            <div class="space-y-5">
+                <div class="relative">
+                    <input type="tel" id="phoneInput" placeholder="أدخل رقم هاتفك..."
+                        class="phone-input w-full px-6 py-4 rounded-2xl text-white text-lg text-center font-bold font-inter tracking-widest outline-none placeholder-gray-500"
+                        maxlength="15" dir="ltr">
+                    <div class="absolute left-4 top-1/2 -translate-y-1/2 text-sky-400/60">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                </div>
+                <button onclick="verifyPhone()" id="verifyBtn"
+                    class="btn-primary w-full py-4 rounded-2xl text-white font-extrabold text-lg tracking-wide shadow-xl">
+                    🔐 دخول / Entrer
+                </button>
+                <p id="errorMsg" class="text-center text-sm font-bold hidden"></p>
+            </div>
+        </div>
+
+        <!-- Info Cards -->
+        <div class="grid grid-cols-2 gap-4 slide-up slide-up-delay-2">
+            <a href="/resultats.html" class="nav-card glass-card rounded-2xl p-6 text-center cursor-pointer group">
+                <div class="text-4xl mb-3 group-hover:scale-110 transition-transform">📊</div>
+                <h3 class="text-white font-bold text-sm mb-1">النتائج</h3>
+                <p class="text-gray-400 text-xs font-inter">Résultats en direct</p>
+            </a>
+            <a href="/login.html" class="nav-card glass-card rounded-2xl p-6 text-center cursor-pointer group">
+                <div class="text-4xl mb-3 group-hover:scale-110 transition-transform">⚙️</div>
+                <h3 class="text-white font-bold text-sm mb-1">الإدارة</h3>
+                <p class="text-gray-400 text-xs font-inter">Espace Admin</p>
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center slide-up slide-up-delay-3 pb-4">
+            <p class="text-gray-500 text-xs font-inter tracking-wide">© 2026 — Élections Associatives Marrakech</p>
+        </div>
+    </div>
+
+    <script>
+        // Load settings
+        async function loadSettings() {
+            try {
+                const res = await fetch('/api/settings');
+                const data = await res.json();
+                if (data.logo_url) {
+                    document.getElementById('siteLogo').src = data.logo_url;
+                    document.getElementById('siteLogo').classList.remove('hidden');
+                    document.getElementById('logoFallback').classList.add('hidden');
+                }
+                if (data.titre) document.getElementById('siteTitle').innerHTML = data.titre.replace('مراكش', '<span class="text-transparent bg-clip-text bg-gradient-to-l from-sky-400 to-indigo-400">مراكش</span>');
+                if (!data.vote_ouvert) {
+                    document.getElementById('statusDot').className = 'w-3 h-3 rounded-full bg-red-400 animate-pulse';
+                    document.getElementById('statusText').className = 'text-red-300 font-bold font-inter';
+                    document.getElementById('statusText').textContent = 'التصويت مغلق';
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function verifyPhone() {
+            const phone = document.getElementById('phoneInput').value.trim();
+            const errorMsg = document.getElementById('errorMsg');
+            const btn = document.getElementById('verifyBtn');
+
+            if (!phone || phone.length < 8) {
+                errorMsg.textContent = 'يرجى إدخال رقم هاتف صحيح';
+                errorMsg.className = 'text-center text-sm font-bold text-red-400';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = '⏳ جاري التحقق...';
+
+            try {
+                const res = await fetch('/api/verifier-telephone', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ telephone: phone })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    if (data.electeur.has_voted) {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'لقد أدليت بصوتك مسبقاً',
+                            text: `مرحباً ${data.electeur.nom}`,
+                            confirmButtonText: 'حسناً',
+                            confirmButtonColor: '#0ea5e9'
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'success',
+                            title: `مرحباً ${data.electeur.nom}`,
+                            text: 'تم التحقق بنجاح! سيتم توجيهك إلى صفحة التصويت',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = '/vote.html';
+                        });
+                    }
+                    errorMsg.className = 'text-center text-sm font-bold hidden';
+                } else {
+                    errorMsg.textContent = data.message || 'هذا الرقم غير مسجل';
+                    errorMsg.className = 'text-center text-sm font-bold text-red-400';
+                }
+            } catch (e) {
+                errorMsg.textContent = 'خطأ في الاتصال بالخادم';
+                errorMsg.className = 'text-center text-sm font-bold text-red-400';
+            }
+            btn.disabled = false;
+            btn.textContent = '🔐 دخول / Entrer';
+        }
+
+        document.getElementById('phoneInput').addEventListener('keydown', e => { if (e.key === 'Enter') verifyPhone(); });
+        loadSettings();
+    </script>
+</body>
+
+</html>

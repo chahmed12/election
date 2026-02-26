@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التصويت - انتخابات مراكش</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(-45deg, #0f172a, #1e293b, #0c4a6e, #164e63);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+        }
+
+        .font-inter {
+            font-family: 'Inter', sans-serif;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%
+            }
+
+            50% {
+                background-position: 100% 50%
+            }
+
+            100% {
+                background-position: 0% 50%
+            }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .liste-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .liste-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .liste-card.selected {
+            border-color: rgba(56, 189, 248, 0.8) !important;
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.3);
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        .liste-card.selected .check-badge {
+            display: flex;
+        }
+
+        .candidat-photo {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s;
+        }
+
+        .candidat-photo:hover {
+            transform: scale(1.1);
+            border-color: rgba(56, 189, 248, 0.5);
+        }
+
+        @keyframes confetti {
+            0% {
+                opacity: 1;
+                transform: translateY(0) rotate(0)
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-200px) rotate(720deg)
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+        .btn-vote {
+            background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-vote:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.4);
+        }
+
+        .btn-vote:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .success-overlay {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes checkmark {
+            0% {
+                transform: scale(0) rotate(-45deg);
+                opacity: 0
+            }
+
+            50% {
+                transform: scale(1.2) rotate(0deg)
+            }
+
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1
+            }
+        }
+
+        .check-anim {
+            animation: checkmark 0.6s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body class="flex flex-col min-h-screen px-4 py-8 relative overflow-x-hidden">
+
+    <!-- Particles -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <div class="absolute bg-sky-500/10 w-96 h-96 -top-40 -right-40 blur-3xl rounded-full"></div>
+        <div class="absolute bg-purple-500/10 w-72 h-72 bottom-20 -left-20 blur-3xl rounded-full"></div>
+    </div>
+
+    <div class="max-w-4xl w-full mx-auto relative z-10 flex-grow">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8 slide-up">
+            <a href="/"
+                class="glass-card px-5 py-2.5 rounded-xl text-white/80 hover:text-white font-bold text-sm flex items-center gap-2 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span class="font-inter">الرئيسية</span>
+            </a>
+            <div id="welcomeUser" class="text-right">
+                <p class="text-white font-bold text-base" id="userName">مرحباً</p>
+                <p class="text-sky-300/70 text-xs font-inter">Bienvenue</p>
+            </div>
+        </div>
+
+        <!-- Step Title -->
+        <div class="text-center mb-10 slide-up">
+            <h1 class="text-3xl md:text-4xl font-black text-white mb-2">اختر <span
+                    class="text-transparent bg-clip-text bg-gradient-to-l from-sky-400 to-indigo-400">لائحتك</span></h1>
+            <p class="text-gray-400 font-inter text-sm">Sélectionnez une liste pour voter</p>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="text-center py-16">
+            <div
+                class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-sky-500/30 border-t-sky-400 mb-4">
+            </div>
+            <p class="text-gray-400 font-inter">Chargement des listes...</p>
+        </div>
+
+        <!-- Listes Container -->
+        <div id="listesContainer" class="space-y-6 hidden"></div>
+
+        <!-- Vote Button -->
+        <div id="voteSection" class="hidden mt-10 slide-up">
+            <button onclick="submitVote()" id="voteBtn" disabled
+                class="btn-vote w-full py-5 rounded-2xl text-white font-black text-xl tracking-wide shadow-2xl">
+                🗳️ تأكيد التصويت / Confirmer le vote
+            </button>
+            <p class="text-center text-gray-500 text-xs mt-3 font-inter">Ce vote est définitif et ne peut être modifié
+            </p>
+        </div>
+
+        <!-- Already Voted Message -->
+        <div id="alreadyVoted" class="hidden text-center py-16 slide-up">
+            <div class="text-8xl mb-6">✅</div>
+            <h2 class="text-3xl font-black text-white mb-4">لقد أدليت بصوتك</h2>
+            <p class="text-sky-300/80 text-lg font-inter mb-8">Vous avez déjà voté. Merci pour votre participation !</p>
+            <a href="/resultats.html"
+                class="inline-flex items-center gap-2 glass-card px-8 py-4 rounded-2xl text-white font-bold hover:bg-white/10 transition">
+                📊 مشاهدة النتائج / Voir les résultats
+            </a>
+        </div>
+
+        <!-- Not Authorized -->
+        <div id="notAuthorized" class="hidden text-center py-16 slide-up">
+            <div class="text-8xl mb-6">🚫</div>
+            <h2 class="text-3xl font-black text-white mb-4">غير مصرح لك</h2>
+            <p class="text-gray-400 font-inter mb-8">Veuillez d'abord vérifier votre numéro de téléphone</p>
+            <a href="/"
+                class="inline-flex items-center gap-2 glass-card px-8 py-4 rounded-2xl text-white font-bold hover:bg-white/10 transition">
+                🔐 العودة للتحقق
+            </a>
+        </div>
+    </div>
+
+    <!-- Success Overlay -->
+    <div id="successOverlay" class="fixed inset-0 z-50 hidden success-overlay flex items-center justify-center">
+        <div class="text-center max-w-md mx-auto px-6">
+            <div class="check-anim inline-block mb-8">
+                <div
+                    class="w-32 h-32 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-2xl shadow-green-500/30">
+                    <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+            </div>
+            <h2 class="text-4xl font-black text-white mb-4">لقد أدليت بصوتك!</h2>
+            <p class="text-green-300 text-xl mb-2 font-bold">شكراً لمشاركتك</p>
+            <p class="text-gray-400 font-inter mb-10">Merci pour votre participation aux élections</p>
+            <a href="/resultats.html"
+                class="inline-flex items-center gap-3 bg-white/10 hover:bg-white/20 border border-white/20 px-8 py-4 rounded-2xl text-white font-bold transition">
+                📊 مشاهدة النتائج
+            </a>
+        </div>
+    </div>
+
+    <footer class="text-center py-6 relative z-10">
+        <p class="text-gray-600 text-xs font-inter">© 2026 — Élections Marrakech</p>
+    </footer>
+
+    <script>
+        let selectedListeId = null;
+
+        // Check if user verified their phone
+        async function init() {
+            try {
+                // Try fetching listes — if session has electeur, show voting
+                const res = await fetch('/api/listes');
+                const listes = await res.json();
+
+                // Check session by trying to see if verification happened
+                const checkRes = await fetch('/api/verifier-telephone', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ telephone: '__check__' })
+                });
+
+                // We need a different approach — let's check via a cookie/session endpoint
+                // For now, load listes and let vote endpoint handle auth
+                loadListes(listes);
+            } catch (e) {
+                console.error(e);
+                document.getElementById('loading').innerHTML = '<p class="text-red-400">خطأ في التحميل</p>';
+            }
+        }
+
+        async function loadListes(listes) {
+            const container = document.getElementById('listesContainer');
+            const loading = document.getElementById('loading');
+
+            if (!listes || !listes.length) {
+                loading.innerHTML = '<div class="text-6xl mb-4">📭</div><p class="text-gray-400 font-inter">لا توجد لوائح مترشحة حالياً</p>';
+                return;
+            }
+
+            loading.classList.add('hidden');
+            container.classList.remove('hidden');
+            document.getElementById('voteSection').classList.remove('hidden');
+
+            container.innerHTML = listes.map((liste, i) => `
+                <div class="liste-card glass-card rounded-3xl p-6 md:p-8 relative overflow-hidden border-2 border-transparent" onclick="selectListe(${liste.id}, this)" style="animation-delay:${i * 0.1}s">
+
+                    <!-- Check badge -->
+                    <div class="check-badge hidden absolute top-4 left-4 w-10 h-10 bg-sky-500 rounded-full items-center justify-center shadow-lg shadow-sky-500/30">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                    </div>
+
+                    <!-- Liste Header -->
+                    <div class="flex items-center gap-5 mb-6">
+                        ${liste.logo_url
+                    ? `<img src="${liste.logo_url}" alt="${liste.nom}" class="w-20 h-20 rounded-2xl object-cover border-2 border-white/20 shadow-lg">`
+                    : `<div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-sky-500/30 to-indigo-500/30 border border-sky-500/20 flex items-center justify-center"><span class="text-4xl">🏛️</span></div>`
+                }
+                        <div class="flex-grow">
+                            <h3 class="text-2xl font-black text-white mb-1">${liste.nom}</h3>
+                            ${liste.slogan ? `<p class="text-sky-300/70 text-sm font-medium">${liste.slogan}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Candidats -->
+                    ${liste.candidats && liste.candidats.length ? `
+                        <div class="border-t border-white/10 pt-5">
+                            <p class="text-gray-400 text-xs font-bold font-inter uppercase tracking-widest mb-4">أعضاء المكتب / Membres du bureau</p>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                ${liste.candidats.map(c => `
+                                    <div class="flex items-center gap-3 bg-white/5 rounded-xl p-3 border border-white/5 hover:bg-white/10 transition">
+                                        ${c.photo_url
+                        ? `<img src="${c.photo_url}" alt="${c.nom}" class="candidat-photo">`
+                        : `<div class="w-[64px] h-[64px] rounded-full bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center border-3 border-white/20 flex-shrink-0"><span class="text-xl">👤</span></div>`
+                    }
+                                        <div class="min-w-0">
+                                            <p class="text-white font-bold text-sm truncate">${c.nom}</p>
+                                            <p class="text-sky-300/60 text-xs font-inter">${c.role}</p>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function selectListe(id, el) {
+            document.querySelectorAll('.liste-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedListeId = id;
+            document.getElementById('voteBtn').disabled = false;
+        }
+
+        async function submitVote() {
+            if (!selectedListeId) return;
+
+            const confirm = await Swal.fire({
+                title: 'تأكيد التصويت',
+                text: 'هل أنت متأكد من اختيارك؟ لا يمكن تغيير التصويت بعد التأكيد.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: '✅ نعم، أصوت',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#0ea5e9',
+                cancelButtonColor: '#64748b'
+            });
+
+            if (!confirm.isConfirmed) return;
+
+            const btn = document.getElementById('voteBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ جاري التسجيل...';
+
+            try {
+                const res = await fetch('/api/voter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ liste_id: selectedListeId })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('successOverlay').classList.remove('hidden');
+                } else {
+                    Swal.fire({ icon: 'error', title: 'خطأ', text: data.message, confirmButtonColor: '#0ea5e9' });
+                    btn.disabled = false;
+                    btn.textContent = '🗳️ تأكيد التصويت / Confirmer le vote';
+                }
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'خطأ', text: 'فشل الاتصال بالخادم', confirmButtonColor: '#0ea5e9' });
+                btn.disabled = false;
+                btn.textContent = '🗳️ تأكيد التصويت / Confirmer le vote';
+            }
+        }
+
+        init();
+    </script>
+</body>
+
+</html>
