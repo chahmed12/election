@@ -609,9 +609,9 @@
                 const data = await fetch('/api/connexion', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ telephone: phone, password: pass }) }).then(r => r.json());
                 if (data.success) {
                     if (data.already_voted) {
-                        Swal.fire({ icon: 'info', title: 'لقد أدليت بصوتك مسبقاً', text: `مرحباً ${data.electeur.nom}`, confirmButtonText: 'حسناً', confirmButtonColor: '#0ea5e9', background: '#1e293b', color: '#fff' });
+                        Swal.fire({ icon: 'info', title: 'لقد أدليت بصوتك مسبقاً', text: `رقم الهاتف: ${data.electeur.telephone}`, confirmButtonText: 'حسناً', confirmButtonColor: '#0ea5e9', background: '#1e293b', color: '#fff' });
                     } else {
-                        Swal.fire({ icon: 'success', title: `مرحباً ${data.electeur.nom} 👋`, text: 'تم تسجيل الدخول بنجاح!', timer: 2000, showConfirmButton: false, background: '#1e293b', color: '#fff' }).then(() => { window.location.href = '/vote.html'; });
+                        Swal.fire({ icon: 'success', title: `مرحباً بك 👋`, text: 'تم تسجيل الدخول بنجاح!', timer: 2000, showConfirmButton: false, background: '#1e293b', color: '#fff' }).then(() => { window.location.href = '/vote.html'; });
                     }
                 } else { showErr('errLogin', '❌ ' + (data.message || 'رقم الهاتف أو كلمة المرور غير صحيحة')); }
             } catch (e) { showErr('errLogin', '❌ خطأ في الاتصال بالخادم'); }
@@ -630,9 +630,9 @@
                 const data = await fetch('/api/inscription', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ telephone: phone, password: pass, password_confirm: confirm }) }).then(r => r.json());
                 if (data.success) {
                     if (data.electeur.has_voted) {
-                        Swal.fire({ icon: 'info', title: 'لقد أدليت بصوتك مسبقاً', text: `مرحباً ${data.electeur.nom}`, confirmButtonText: 'حسناً', confirmButtonColor: '#0ea5e9', background: '#1e293b', color: '#fff' });
+                        Swal.fire({ icon: 'info', title: 'لقد أدليت بصوتك مسبقاً', text: `رقم الهاتف: ${data.electeur.telephone}`, confirmButtonText: 'حسناً', confirmButtonColor: '#0ea5e9', background: '#1e293b', color: '#fff' });
                     } else {
-                        Swal.fire({ icon: 'success', title: '🎉 تم إنشاء حسابك!', text: `مرحباً ${data.electeur.nom}، سيتم توجيهك للتصويت`, timer: 2300, showConfirmButton: false, background: '#1e293b', color: '#fff' }).then(() => { window.location.href = '/vote.html'; });
+                        Swal.fire({ icon: 'success', title: '🎉 تم إنشاء حسابك!', text: `سيتم توجيهك للتصويت`, timer: 2300, showConfirmButton: false, background: '#1e293b', color: '#fff' }).then(() => { window.location.href = '/vote.html'; });
                     }
                 } else { showErr('errRegister', '❌ ' + (data.message || 'حدث خطأ أثناء التسجيل')); }
             } catch (e) { showErr('errRegister', '❌ خطأ في الاتصال بالخادم'); }
@@ -643,7 +643,9 @@
             try {
                 const data = await fetch('/api/settings').then(r => r.json());
                 if (data.logo_url) { $('siteLogo').src = data.logo_url; $('siteLogo').style.display = 'block'; $('logoFallback').style.display = 'none'; }
-                if (data.titre) { $('siteTitle').innerHTML = data.titre.replace('مراكش', '<span style="background:linear-gradient(to left,#38bdf8,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">مراكش</span>'); }
+
+                // تم إزالة السطر الذي كان يمسح العنوان الجميل ويستبدله بالعنوان القديم من قاعدة البيانات
+
                 if (!data.vote_ouvert) { $('statusDot').style.background = '#f87171'; $('statusText').style.color = '#fca5a5'; $('statusText').textContent = 'التصويت مغلق'; }
             } catch (e) { }
         }
