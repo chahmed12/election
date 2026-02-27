@@ -254,23 +254,27 @@
     <script>
         let selectedListeId = null;
 
-        // Check if user verified their phone
         async function init() {
             try {
-                // Try fetching listes — if session has electeur, show voting
                 const res = await fetch('/api/listes');
-                const listes = await res.json();
+                const data = await res.json();
 
-                // Check session by trying to see if verification happened
-                const checkRes = await fetch('/api/verifier-telephone', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ telephone: '__check__' })
-                });
+                // Vote fermé → afficher message et cacher tout
+                if (!data.vote_ouvert) {
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('listesContainer').innerHTML = '';
+                    document.getElementById('listesContainer').classList.remove('hidden');
+                    document.getElementById('listesContainer').innerHTML = `
+                        <div class="glass-card rounded-3xl p-16 text-center">
+                            <div class="text-8xl mb-6">🔒</div>
+                            <h2 class="text-3xl font-black text-white mb-3">التصويت مغلق حالياً</h2>
+                            <p class="text-gray-400 font-inter text-lg">Le vote est actuellement fermé</p>
+                            <p class="text-gray-500 font-inter text-sm mt-2">يرجى المراجعة لاحقاً</p>
+                        </div>`;
+                    return; // ← arrêter ici, ne pas afficher les listes ni le bouton
+                }
 
-                // We need a different approach — let's check via a cookie/session endpoint
-                // For now, load listes and let vote endpoint handle auth
-                loadListes(listes);
+                loadListes(data.listes);
             } catch (e) {
                 console.error(e);
                 document.getElementById('loading').innerHTML = '<p class="text-red-400">خطأ في التحميل</p>';

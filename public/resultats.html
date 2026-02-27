@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>النتائج - انتخابات مراكش</title>
+    <title>انتخابات فرع الرابطة في مراكش 2026/2027</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap"
         rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
             font-family: 'Cairo', sans-serif;
@@ -19,25 +19,21 @@
             min-height: 100vh;
         }
 
-        .font-inter {
-            font-family: 'Inter', sans-serif;
-        }
-
         @keyframes gradientBG {
             0% {
-                background-position: 0% 50%
+                background-position: 0% 50%;
             }
 
             50% {
-                background-position: 100% 50%
+                background-position: 100% 50%;
             }
 
             100% {
-                background-position: 0% 50%
+                background-position: 0% 50%;
             }
         }
 
-        .glass-card {
+        .glass {
             background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -45,8 +41,34 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
-        .progress-bar {
-            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        .glass-light {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0)
+            }
+
+            50% {
+                transform: translateY(-15px)
+            }
+        }
+
+        @keyframes pulseGlow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(56, 189, 248, .3)
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(56, 189, 248, .6)
+            }
         }
 
         @keyframes slideUp {
@@ -61,241 +83,618 @@
             }
         }
 
+        .float-anim {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .pulse-glow {
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+
         .slide-up {
-            animation: slideUp 0.6s ease-out forwards;
+            animation: slideUp 0.8s ease-out forwards;
         }
 
-        .result-card {
-            transition: all 0.3s ease;
+        .delay-1 {
+            animation-delay: .15s;
+            opacity: 0;
         }
 
-        .result-card:hover {
-            transform: translateX(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        .delay-2 {
+            animation-delay: .30s;
+            opacity: 0;
         }
 
-        .result-card.winner {
-            border-color: rgba(251, 191, 36, 0.5) !important;
+        .delay-3 {
+            animation-delay: .45s;
+            opacity: 0;
         }
 
-        .result-card.winner::after {
-            content: '🏆';
+        /* Tab bar */
+        .tab-bar {
+            display: flex;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 1rem;
+            padding: 5px;
+            gap: 4px;
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: .75rem 1rem;
+            border-radius: .75rem;
+            border: none;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 800;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, .5);
+            background: transparent;
+            transition: all .3s;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #0ea5e9, #6366f1);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(14, 165, 233, .35);
+        }
+
+        .tab-btn:not(.active):hover {
+            color: rgba(255, 255, 255, .8);
+            background: rgba(255, 255, 255, .06);
+        }
+
+        /* Panels */
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        /* Inputs */
+        .inp {
+            background: rgba(255, 255, 255, 0.06);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            transition: all .3s;
+            outline: none;
+            width: 100%;
+            border-radius: 1rem;
+            padding: .95rem 1.25rem;
+            font-size: 1rem;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+        }
+
+        .inp::placeholder {
+            color: rgba(156, 163, 175, .55);
+            font-weight: 400;
+        }
+
+        .inp:focus {
+            border-color: rgba(56, 189, 248, .65);
+            box-shadow: 0 0 18px rgba(56, 189, 248, .13);
+            background: rgba(255, 255, 255, .09);
+        }
+
+        .inp-wrap {
+            position: relative;
+        }
+
+        .inp-icon {
             position: absolute;
-            top: -10px;
-            left: -10px;
-            font-size: 2rem;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(56, 189, 248, .5);
+            pointer-events: none;
         }
 
-        @keyframes countUp {
-            from {
-                opacity: 0;
-                transform: scale(0.5);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+        .eye-btn {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 1.1rem;
+            user-select: none;
+            opacity: .55;
+            transition: opacity .2s;
         }
 
-        .count-anim {
-            animation: countUp 0.8s ease-out forwards;
+        .eye-btn:hover {
+            opacity: 1;
         }
 
-        .stat-card {
-            transition: all 0.3s ease;
+        /* Buttons */
+        .btn-blue {
+            background: linear-gradient(135deg, #0ea5e9, #6366f1);
+            color: #fff;
+            font-weight: 800;
+            font-size: 1.05rem;
+            border-radius: 1rem;
+            padding: 1rem;
+            width: 100%;
+            border: none;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            transition: all .3s;
         }
 
-        .stat-card:hover {
-            transform: translateY(-5px);
+        .btn-blue:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(14, 165, 233, .4);
+        }
+
+        .btn-blue:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .btn-green {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            font-weight: 800;
+            font-size: 1.05rem;
+            border-radius: 1rem;
+            padding: 1rem;
+            width: 100%;
+            border: none;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            transition: all .3s;
+        }
+
+        .btn-green:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(16, 185, 129, .4);
+        }
+
+        .btn-green:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, .07);
+            border: 1px solid rgba(255, 255, 255, .14);
+            color: rgba(255, 255, 255, .6);
+            font-weight: 700;
+            font-size: .9rem;
+            border-radius: 1rem;
+            padding: .8rem;
+            width: 100%;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            transition: all .3s;
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, .13);
+            color: #fff;
+        }
+
+        /* Labels */
+        .lbl {
+            display: block;
+            color: rgba(255, 255, 255, .6);
+            font-size: .85rem;
+            font-weight: 700;
+            margin-bottom: .4rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Strength bar */
+        .str-wrap {
+            background: rgba(255, 255, 255, .1);
+            border-radius: 9999px;
+            height: 5px;
+            overflow: hidden;
+            margin-top: .5rem;
+        }
+
+        .str-fill {
+            height: 100%;
+            border-radius: 9999px;
+            transition: all .3s;
+            width: 0%;
+        }
+
+        /* Error msg */
+        .errmsg {
+            text-align: center;
+            font-size: .87rem;
+            font-weight: 700;
+            color: #f87171;
+            display: none;
+            padding: .4rem 0;
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            margin: 1.25rem 0;
+            color: rgba(255, 255, 255, .25);
+            font-size: .8rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, .1);
+        }
+
+        /* Nav cards */
+        .nav-card {
+            transition: all .4s cubic-bezier(.175, .885, .32, 1.275);
+            text-decoration: none;
+            display: block;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, .4);
+            border-color: rgba(56, 189, 248, .4);
         }
     </style>
 </head>
 
-<body class="flex flex-col min-h-screen px-4 py-8 relative">
+<body class="flex flex-col items-center justify-center px-4 py-8 relative overflow-hidden">
 
-    <!-- Particles -->
-    <div class="fixed inset-0 z-0 pointer-events-none">
-        <div class="absolute bg-sky-500/10 w-80 h-80 -top-20 -right-20 blur-3xl rounded-full"></div>
-        <div class="absolute bg-amber-500/10 w-72 h-72 bottom-0 -left-20 blur-3xl rounded-full"></div>
+    <!-- Background blobs -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div
+            style="position:absolute;top:-5rem;right:-5rem;width:18rem;height:18rem;background:rgba(56,189,248,.14);border-radius:50%;filter:blur(65px)">
+        </div>
+        <div
+            style="position:absolute;bottom:0;left:-10rem;width:26rem;height:26rem;background:rgba(168,85,247,.08);border-radius:50%;filter:blur(80px)">
+        </div>
+        <div class="float-anim"
+            style="position:absolute;top:40%;right:20%;width:16rem;height:16rem;background:rgba(251,191,36,.07);border-radius:50%;filter:blur(70px)">
+        </div>
     </div>
 
-    <div class="max-w-4xl w-full mx-auto relative z-10 flex-grow">
+    <div class="max-w-md w-full mx-auto relative z-10 space-y-6">
 
-        <!-- Header -->
-        <div class="flex items-center justify-between mb-8 slide-up">
-            <a href="/"
-                class="glass-card px-5 py-2.5 rounded-xl text-white/80 hover:text-white font-bold text-sm flex items-center gap-2 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                <span class="font-inter">الرئيسية</span>
-            </a>
-            <h1 class="text-2xl md:text-3xl font-black text-white">📊 النتائج</h1>
-        </div>
-
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-3 gap-4 mb-8 slide-up">
-            <div class="stat-card glass-card rounded-2xl p-5 text-center">
-                <p class="text-gray-400 text-xs font-bold font-inter uppercase tracking-wider mb-2">إجمالي الناخبين</p>
-                <p id="totalElecteurs" class="text-3xl font-black text-white font-inter count-anim">0</p>
-                <p class="text-gray-500 text-xs font-inter mt-1">Inscrits</p>
-            </div>
-            <div class="stat-card glass-card rounded-2xl p-5 text-center">
-                <p class="text-gray-400 text-xs font-bold font-inter uppercase tracking-wider mb-2">عدد الأصوات</p>
-                <p id="totalVotes" class="text-3xl font-black text-sky-400 font-inter count-anim">0</p>
-                <p class="text-gray-500 text-xs font-inter mt-1">Votes</p>
-            </div>
-            <div class="stat-card glass-card rounded-2xl p-5 text-center">
-                <p class="text-gray-400 text-xs font-bold font-inter uppercase tracking-wider mb-2">نسبة المشاركة</p>
-                <p id="tauxParticipation" class="text-3xl font-black text-amber-400 font-inter count-anim">0%</p>
-                <p class="text-gray-500 text-xs font-inter mt-1">Participation</p>
-            </div>
-        </div>
-
-        <!-- Chart -->
-        <div class="glass-card rounded-3xl p-6 md:p-8 mb-8 slide-up">
-            <h2 class="text-xl font-extrabold text-white mb-6 text-right border-b border-white/10 pb-4">
-                توزيع الأصوات
-                <span class="block text-sm font-inter text-gray-400 font-medium mt-1">Répartition des votes</span>
-            </h2>
-            <div class="relative h-64 md:h-80">
-                <canvas id="voteChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Results List -->
-        <div id="resultsList" class="space-y-4 mb-8">
-            <div class="text-center py-12">
-                <div
-                    class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-sky-500/30 border-t-sky-400 mb-4">
-                </div>
-                <p class="text-gray-400 font-inter">Chargement des résultats...</p>
-            </div>
-        </div>
-
-        <!-- Auto-refresh -->
+        <!-- ══ HEADER ══ -->
         <div class="text-center slide-up">
-            <p class="text-gray-600 text-xs font-inter">
-                <span class="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse mr-1"></span>
-                Mise à jour automatique toutes les 10 secondes
+            <div
+                class="w-24 h-24 mx-auto mb-5 rounded-3xl glass-light flex items-center justify-center pulse-glow overflow-hidden">
+                <img id="siteLogo" src="" alt="" class="w-full h-full object-cover rounded-3xl hidden">
+                <span id="logoFallback" class="text-5xl">🗳️</span>
+            </div>
+            <h1 id="siteTitle" class="text-3xl md:text-4xl font-black text-white mb-2 leading-tight">
+                انتخابات فرع الرابطة<br>
+                في <span class="text-transparent bg-clip-text bg-gradient-to-l from-sky-400 to-indigo-400">مراكش</span>
+            </h1>
+            <p class="text-sky-200/60 text-sm tracking-widest mb-3" style="font-family:'Inter',sans-serif">2026 / 2027
             </p>
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-sm">
+                <span id="statusDot" class="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse"></span>
+                <span id="statusText" class="text-green-300 font-bold" style="font-family:'Inter',sans-serif">التصويت
+                    مفتوح</span>
+            </div>
         </div>
-    </div>
 
-    <footer class="text-center py-6 relative z-10">
-        <p class="text-gray-600 text-xs font-inter">© 2026 — Élections Marrakech</p>
-    </footer>
+        <!-- ══ AUTH CARD ══ -->
+        <div class="glass rounded-3xl p-7 md:p-9 slide-up delay-1" style="box-shadow:0 0 40px rgba(56,189,248,.1)">
+
+            <!-- Tab switcher -->
+            <div class="tab-bar">
+                <button id="tabLogin" class="tab-btn active" onclick="switchTab('login')">🔐 تسجيل الدخول</button>
+                <button id="tabRegister" class="tab-btn" onclick="switchTab('register')">📝 إنشاء حساب</button>
+            </div>
+
+            <!-- ══════════════════════════════
+                 CONNEXION — تسجيل الدخول
+            ══════════════════════════════ -->
+            <div id="panelLogin" class="panel active">
+                <div class="space-y-4">
+
+                    <!-- Téléphone -->
+                    <div>
+                        <label class="lbl">📱 رقم الهاتف</label>
+                        <div class="inp-wrap">
+                            <input type="tel" id="loginPhone" placeholder="06XXXXXXXX" class="inp" dir="ltr"
+                                maxlength="15" style="padding-right:2.75rem"
+                                onkeydown="if(event.key==='Enter') document.getElementById('loginPass').focus()">
+                            <span class="inp-icon">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Mot de passe -->
+                    <div>
+                        <label class="lbl">🔑 كلمة المرور</label>
+                        <div class="inp-wrap">
+                            <input type="password" id="loginPass" placeholder="أدخل كلمة المرور" class="inp"
+                                style="padding-right:2.75rem;padding-left:3rem"
+                                onkeydown="if(event.key==='Enter') loginUser()">
+                            <span class="inp-icon">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                            </span>
+                            <span class="eye-btn" onclick="toggleEye('loginPass',this)">👁</span>
+                        </div>
+                    </div>
+
+                    <p id="errLogin" class="errmsg"></p>
+
+                    <button id="loginBtn" class="btn-blue" onclick="loginUser()">
+                        🔐 دخول / Se connecter
+                    </button>
+
+                    <div class="divider">ليس لديك حساب؟</div>
+
+                    <button class="btn-ghost" onclick="switchTab('register')">
+                        📝 إنشاء حساب جديد
+                    </button>
+
+                </div>
+            </div><!-- /panelLogin -->
+
+            <!-- ══════════════════════════════
+                 INSCRIPTION — إنشاء حساب
+            ══════════════════════════════ -->
+            <div id="panelRegister" class="panel">
+                <div class="space-y-4">
+
+                    <!-- Téléphone -->
+                    <div>
+                        <label class="lbl">📱 رقم الهاتف</label>
+                        <div class="inp-wrap">
+                            <input type="tel" id="regPhone" placeholder="06XXXXXXXX" class="inp" dir="ltr"
+                                maxlength="15" style="padding-right:2.75rem"
+                                onkeydown="if(event.key==='Enter') document.getElementById('regPass').focus()">
+                            <span class="inp-icon">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Mot de passe -->
+                    <div>
+                        <label class="lbl">🔑 كلمة المرور</label>
+                        <div class="inp-wrap">
+                            <input type="password" id="regPass" placeholder="أنشئ كلمة مرور (4 أحرف على الأقل)"
+                                class="inp" style="padding-right:2.75rem;padding-left:3rem"
+                                oninput="strengthCheck(this.value)"
+                                onkeydown="if(event.key==='Enter') document.getElementById('regPassConfirm').focus()">
+                            <span class="inp-icon">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                            </span>
+                            <span class="eye-btn" onclick="toggleEye('regPass',this)">👁</span>
+                        </div>
+                        <div class="str-wrap">
+                            <div id="strFill" class="str-fill"></div>
+                        </div>
+                        <p id="strText" class="text-xs text-center mt-1" style="color:rgba(255,255,255,.4)"></p>
+                    </div>
+
+                    <!-- Confirmer -->
+                    <div>
+                        <label class="lbl">✅ تأكيد كلمة المرور</label>
+                        <div class="inp-wrap">
+                            <input type="password" id="regPassConfirm" placeholder="أعد كتابة كلمة المرور" class="inp"
+                                style="padding-right:2.75rem;padding-left:3rem"
+                                onkeydown="if(event.key==='Enter') register()">
+                            <span class="inp-icon">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </span>
+                            <span class="eye-btn" onclick="toggleEye('regPassConfirm',this)">👁</span>
+                        </div>
+                    </div>
+
+                    <p id="errRegister" class="errmsg"></p>
+
+                    <button id="registerBtn" class="btn-green" onclick="register()">
+                        ✅ تسجيل / S'inscrire
+                    </button>
+
+                    <div class="divider">لديك حساب بالفعل؟</div>
+
+                    <button class="btn-ghost" onclick="switchTab('login')">
+                        🔐 تسجيل الدخول
+                    </button>
+
+                </div>
+            </div><!-- /panelRegister -->
+
+        </div><!-- /auth card -->
+
+        <!-- ══ NAV CARDS ══ -->
+        <div class="grid grid-cols-2 gap-4 slide-up delay-2">
+            <a href="/resultats.html" class="nav-card glass rounded-2xl p-5 text-center group">
+                <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">📊</div>
+                <h3 class="text-white font-bold text-sm mb-0.5">النتائج</h3>
+                <p class="text-gray-400 text-xs" style="font-family:'Inter',sans-serif">Résultats en direct</p>
+            </a>
+            <a href="/login.html" class="nav-card glass rounded-2xl p-5 text-center group">
+                <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">⚙️</div>
+                <h3 class="text-white font-bold text-sm mb-0.5">الإدارة</h3>
+                <p class="text-gray-400 text-xs" style="font-family:'Inter',sans-serif">Espace Admin</p>
+            </a>
+        </div>
+
+        <!-- ══ FOOTER ══ -->
+        <div class="text-center slide-up delay-3 pb-4">
+            <p class="text-gray-500 text-xs" style="font-family:'Inter',sans-serif">© 2026 — Élections Associatives
+                Marrakech</p>
+        </div>
+
+    </div><!-- /container -->
 
     <script>
-        let chart = null;
-        const COLORS = ['#0ea5e9', '#8b5cf6', '#f59e0b', '#ef4444', '#10b981', '#ec4899', '#6366f1', '#14b8a6'];
+        /* ── Tab switcher ── */
+        function switchTab(tab) {
+            const isLogin = tab === 'login';
+            document.getElementById('tabLogin').classList.toggle('active', isLogin);
+            document.getElementById('tabRegister').classList.toggle('active', !isLogin);
+            document.getElementById('panelLogin').classList.toggle('active', isLogin);
+            document.getElementById('panelRegister').classList.toggle('active', !isLogin);
+            document.getElementById('errLogin').style.display = 'none';
+            document.getElementById('errRegister').style.display = 'none';
+            setTimeout(() => document.getElementById(isLogin ? 'loginPhone' : 'regPhone').focus(), 50);
+        }
 
-        async function loadResults() {
+        /* ── Helpers ── */
+        function showErr(id, msg) {
+            const el = document.getElementById(id);
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+        function setLoading(btnId, loading, label) {
+            const btn = document.getElementById(btnId);
+            btn.disabled = loading;
+            btn.textContent = loading ? '⏳ جاري المعالجة...' : label;
+        }
+        function toggleEye(inputId, icon) {
+            const inp = document.getElementById(inputId);
+            inp.type = inp.type === 'password' ? 'text' : 'password';
+            icon.textContent = inp.type === 'password' ? '👁' : '🙈';
+        }
+
+        /* ── Password strength ── */
+        function strengthCheck(val) {
+            let s = 0;
+            if (val.length >= 4) s++;
+            if (val.length >= 8) s++;
+            if (/[A-Za-z]/.test(val)) s++;
+            if (/[0-9]/.test(val)) s++;
+            if (/[^a-zA-Z0-9]/.test(val)) s++;
+            const lvl = [
+                { w: '0%', c: 'transparent', t: '' },
+                { w: '20%', c: '#ef4444', t: 'ضعيفة جداً 🔴' },
+                { w: '40%', c: '#f97316', t: 'ضعيفة 🟠' },
+                { w: '65%', c: '#eab308', t: 'متوسطة 🟡' },
+                { w: '85%', c: '#22c55e', t: 'قوية 🟢' },
+                { w: '100%', c: '#10b981', t: 'قوية جداً ✅' },
+            ][Math.min(s, 5)];
+            document.getElementById('strFill').style.width = lvl.w;
+            document.getElementById('strFill').style.background = lvl.c;
+            document.getElementById('strText').textContent = lvl.t;
+        }
+
+        /* ── LOGIN ── */
+        async function loginUser() {
+            const phone = document.getElementById('loginPhone').value.trim();
+            const pass = document.getElementById('loginPass').value;
+            document.getElementById('errLogin').style.display = 'none';
+
+            if (!phone || phone.length < 8) { showErr('errLogin', '⚠️ يرجى إدخال رقم هاتف صحيح'); return; }
+            if (!pass) { showErr('errLogin', '⚠️ يرجى إدخال كلمة المرور'); return; }
+
+            setLoading('loginBtn', true, '🔐 دخول / Se connecter');
             try {
-                const res = await fetch('/api/resultats');
-                const data = await res.json();
-                renderStats(data);
-                renderChart(data);
-                renderList(data);
-            } catch (e) {
-                document.getElementById('resultsList').innerHTML = '<p class="text-red-400 text-center">خطأ في التحميل</p>';
-            }
-        }
+                const data = await fetch('/api/connexion', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ telephone: phone, password: pass })
+                }).then(r => r.json());
 
-        function renderStats(data) {
-            document.getElementById('totalElecteurs').textContent = data.total_electeurs;
-            document.getElementById('totalVotes').textContent = data.total_votes;
-            const taux = data.total_electeurs > 0 ? Math.round((data.total_votes / data.total_electeurs) * 100) : 0;
-            document.getElementById('tauxParticipation').textContent = taux + '%';
-        }
-
-        function renderChart(data) {
-            const ctx = document.getElementById('voteChart').getContext('2d');
-            if (chart) chart.destroy();
-
-            const labels = data.listes.map(l => l.nom);
-            const votes = data.listes.map(l => l.votes);
-            const colors = data.listes.map((_, i) => COLORS[i % COLORS.length]);
-
-            if (!votes.some(v => v > 0)) {
-                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                ctx.fillStyle = '#64748b';
-                ctx.font = '16px Cairo';
-                ctx.textAlign = 'center';
-                ctx.fillText('لا توجد أصوات بعد', ctx.canvas.width / 2, ctx.canvas.height / 2);
-                return;
-            }
-
-            chart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels,
-                    datasets: [{
-                        data: votes,
-                        backgroundColor: colors,
-                        borderWidth: 3,
-                        borderColor: '#0f172a',
-                        hoverBorderColor: '#fff',
-                        hoverOffset: 10
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '60%',
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { color: '#94a3b8', font: { family: 'Cairo', size: 13, weight: '600' }, padding: 20 }
-                        }
+                if (data.success) {
+                    if (data.already_voted) {
+                        Swal.fire({
+                            icon: 'info', title: 'لقد أدليت بصوتك مسبقاً', text: `مرحباً ${data.electeur.nom}`,
+                            confirmButtonText: 'حسناً', confirmButtonColor: '#0ea5e9', background: '#1e293b', color: '#fff'
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'success', title: `مرحباً ${data.electeur.nom} 👋`, text: 'تم تسجيل الدخول بنجاح!',
+                            timer: 2000, showConfirmButton: false, background: '#1e293b', color: '#fff'
+                        }).then(() => { window.location.href = '/vote.html'; });
                     }
+                } else {
+                    showErr('errLogin', '❌ ' + (data.message || 'رقم الهاتف أو كلمة المرور غير صحيحة'));
                 }
-            });
+            } catch (e) { showErr('errLogin', '❌ خطأ في الاتصال بالخادم'); }
+            setLoading('loginBtn', false, '🔐 دخول / Se connecter');
         }
 
-        function renderList(data) {
-            const container = document.getElementById('resultsList');
-            const maxVotes = Math.max(...data.listes.map(l => l.votes), 1);
+        /* ── REGISTER ── */
+        async function register() {
+            const phone = document.getElementById('regPhone').value.trim();
+            const pass = document.getElementById('regPass').value;
+            const confirm = document.getElementById('regPassConfirm').value;
+            document.getElementById('errRegister').style.display = 'none';
 
-            if (!data.listes.length) {
-                container.innerHTML = '<p class="text-gray-400 text-center py-8">لا توجد لوائح</p>';
-                return;
-            }
+            if (!phone || phone.length < 8) { showErr('errRegister', '⚠️ يرجى إدخال رقم هاتف صحيح'); return; }
+            if (!pass) { showErr('errRegister', '⚠️ يرجى إدخال كلمة مرور'); return; }
+            if (pass.length < 4) { showErr('errRegister', '⚠️ كلمة المرور يجب أن تكون 4 أحرف على الأقل'); return; }
+            if (pass !== confirm) { showErr('errRegister', '❌ كلمتا المرور غير متطابقتين'); return; }
 
-            container.innerHTML = data.listes.map((l, i) => {
-                const pct = data.total_votes > 0 ? Math.round((l.votes / data.total_votes) * 100) : 0;
-                const isWinner = i === 0 && l.votes > 0;
-                const color = COLORS[i % COLORS.length];
+            setLoading('registerBtn', true, "✅ تسجيل / S'inscrire");
+            try {
+                const data = await fetch('/api/inscription', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ telephone: phone, password: pass, password_confirm: confirm })
+                }).then(r => r.json());
 
-                return `
-                <div class="result-card glass-card rounded-2xl p-6 relative ${isWinner ? 'winner border-2' : 'border border-transparent'}" style="animation-delay:${i * 0.1}s">
-                    <div class="flex items-center gap-5 mb-4">
-                        ${l.logo_url
-                        ? `<img src="${l.logo_url}" alt="${l.nom}" class="w-14 h-14 rounded-xl object-cover border border-white/20">`
-                        : `<div class="w-14 h-14 rounded-xl flex items-center justify-center border border-white/10" style="background:${color}20"><span class="text-2xl">🏛️</span></div>`
+                if (data.success) {
+                    if (data.electeur.has_voted) {
+                        Swal.fire({
+                            icon: 'info', title: 'لقد أدليت بصوتك مسبقاً', text: `مرحباً ${data.electeur.nom}`,
+                            confirmButtonText: 'حسناً', confirmButtonColor: '#0ea5e9', background: '#1e293b', color: '#fff'
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'success', title: '🎉 تم إنشاء حسابك بنجاح!',
+                            text: `مرحباً ${data.electeur.nom}، سيتم توجيهك لصفحة التصويت`,
+                            timer: 2300, showConfirmButton: false, background: '#1e293b', color: '#fff'
+                        }).then(() => { window.location.href = '/vote.html'; });
                     }
-                        <div class="flex-grow min-w-0">
-                            <div class="flex items-center justify-between gap-2">
-                                <h3 class="text-lg font-black text-white truncate">${l.nom}</h3>
-                                <span class="text-2xl font-black font-inter" style="color:${color}">${pct}%</span>
-                            </div>
-                            <p class="text-gray-400 text-sm font-inter">${l.votes} vote${l.votes > 1 ? 's' : ''}</p>
-                        </div>
-                    </div>
-                    <div class="bg-white/5 rounded-full h-3 overflow-hidden">
-                        <div class="h-full rounded-full progress-bar relative" style="width:${pct}%;background:${color}">
-                            <div class="absolute inset-0 bg-white/20" style="background-image:linear-gradient(45deg,rgba(255,255,255,0.1) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.1) 50%,rgba(255,255,255,0.1) 75%,transparent 75%);background-size:1rem 1rem"></div>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('');
+                } else {
+                    showErr('errRegister', '❌ ' + (data.message || 'حدث خطأ أثناء التسجيل'));
+                }
+            } catch (e) { showErr('errRegister', '❌ خطأ في الاتصال بالخادم'); }
+            setLoading('registerBtn', false, "✅ تسجيل / S'inscrire");
         }
 
-        loadResults();
-        setInterval(loadResults, 10000); // Auto-refresh every 10s
+        /* ── Settings ── */
+        async function loadSettings() {
+            try {
+                const data = await fetch('/api/settings').then(r => r.json());
+                if (data.logo_url) {
+                    document.getElementById('siteLogo').src = data.logo_url;
+                    document.getElementById('siteLogo').classList.remove('hidden');
+                    document.getElementById('logoFallback').classList.add('hidden');
+                }
+                if (data.titre) {
+                    document.getElementById('siteTitle').innerHTML = data.titre.replace('مراكش',
+                        '<span class="text-transparent bg-clip-text bg-gradient-to-l from-sky-400 to-indigo-400">مراكش</span>');
+                }
+                if (!data.vote_ouvert) {
+                    document.getElementById('statusDot').className = 'w-2.5 h-2.5 rounded-full bg-red-400 animate-pulse';
+                    document.getElementById('statusText').className = 'text-red-300 font-bold';
+                    document.getElementById('statusText').textContent = 'التصويت مغلق';
+                }
+            } catch (e) { }
+        }
+
+        loadSettings();
+        document.getElementById('loginPhone').focus();
     </script>
 </body>
 

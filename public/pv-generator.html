@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محضر الانتخابات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: "Cairo", sans-serif;
+            background: linear-gradient(-45deg, #0f172a, #1e293b, #0c4a6e, #164e63);
+            background-size: 400% 400%;
+            animation: bg 15s ease infinite;
+            min-height: 100vh
+        }
+
+        @keyframes bg {
+
+            0%,
+            100% {
+                background-position: 0% 50%
+            }
+
+            50% {
+                background-position: 100% 50%
+            }
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, .08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, .12);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, .3)
+        }
+
+        .inp {
+            background: rgba(255, 255, 255, .07);
+            border: 2px solid rgba(255, 255, 255, .12);
+            color: #fff;
+            outline: none;
+            width: 100%;
+            border-radius: .75rem;
+            padding: .7rem 1rem;
+            font-family: "Cairo", sans-serif;
+            font-size: .9rem;
+            transition: all .3s
+        }
+
+        .inp:focus {
+            border-color: rgba(56, 189, 248, .6);
+            background: rgba(255, 255, 255, .1)
+        }
+
+        .inp::placeholder {
+            color: rgba(156, 163, 175, .45)
+        }
+
+        .lbl {
+            display: block;
+            color: rgba(255, 255, 255, .55);
+            font-size: .78rem;
+            font-weight: 700;
+            margin-bottom: .35rem
+        }
+
+        .btn-dl {
+            background: linear-gradient(135deg, #0ea5e9, #6366f1);
+            color: #fff;
+            font-weight: 800;
+            border: none;
+            cursor: pointer;
+            font-family: "Cairo", sans-serif;
+            border-radius: 1rem;
+            padding: 1rem;
+            width: 100%;
+            font-size: 1.05rem;
+            transition: all .3s
+        }
+
+        .btn-dl:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(14, 165, 233, .35)
+        }
+
+        .add-btn {
+            background: rgba(16, 185, 129, .15);
+            border: 1px solid rgba(16, 185, 129, .3);
+            color: #6ee7b7;
+            border-radius: .5rem;
+            padding: .4rem .9rem;
+            font-size: .8rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: "Cairo", sans-serif
+        }
+
+        .del-btn {
+            background: rgba(239, 68, 68, .15);
+            border: 1px solid rgba(239, 68, 68, .25);
+            color: #fca5a5;
+            border-radius: .5rem;
+            padding: .35rem .7rem;
+            font-size: .8rem;
+            cursor: pointer;
+            flex-shrink: 0
+        }
+
+        .sec-t {
+            font-size: 1rem;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 1rem;
+            padding-bottom: .6rem;
+            border-bottom: 1px solid rgba(255, 255, 255, .1)
+        }
+
+        .r-row {
+            display: grid;
+            grid-template-columns: 1fr 80px 70px;
+            gap: .5rem;
+            align-items: center;
+            padding: .6rem .9rem;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: .75rem
+        }
+    </style>
+</head>
+
+<body class="px-4 py-8">
+    <div class="max-w-2xl mx-auto space-y-6">
+        <div class="text-center">
+            <div class="text-5xl mb-2">📋</div>
+            <h1 class="text-3xl font-black text-white">محضر الانتخابات</h1>
+            <p class="text-sky-300/60 text-sm mt-1">فرع الرابطة في مراكش</p>
+        </div>
+        <div class="glass rounded-2xl p-4 flex items-center gap-3">
+            <div id="spinner"
+                class="w-5 h-5 rounded-full border-2 border-sky-500/30 border-t-sky-400 animate-spin flex-shrink-0">
+            </div>
+            <div id="status" class="text-sm text-gray-400">جاري تحميل النتائج...</div>
+            <button onclick="loadAPI()" class="add-btn mr-auto text-xs px-3 py-1.5 flex-shrink-0">🔄 إعادة
+                التحميل</button>
+        </div>
+        <div class="glass rounded-3xl p-6 md:p-8 space-y-7">
+            <div>
+                <div class="sec-t">📅 المعلومات العامة</div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="lbl">التاريخ</label><input type="date" id="pvDate" class="inp"
+                            value="2026-02-22"></div>
+                    <div><label class="lbl">الساعة</label><input type="time" id="pvHeure" class="inp"></div>
+                    <div><label class="lbl">المكان</label><input type="text" id="pvLieu" class="inp"></div>
+                    <div><label class="lbl">عدد الطلاب الحاضرين</label><input type="number" id="pvPresents" class="inp"
+                            placeholder="0"></div>
+                    <div><label class="lbl">عدد المصوتين</label><input type="number" id="pvVotants" class="inp" readonly
+                            style="opacity:.8"></div>
+                    <div><label class="lbl">عدد اللوائح</label><input type="number" id="pvNbListes" class="inp" readonly
+                            style="opacity:.8"></div>
+                </div>
+            </div>
+            <div>
+                <div class="sec-t">🗳️ نتائج التصويت <span class="text-xs font-normal text-sky-400/70">— تلقائي</span>
+                </div>
+                <div id="listesRows">
+                    <p class="text-gray-500 text-sm text-center py-3">جاري التحميل...</p>
+                </div>
+            </div>
+            <div>
+                <div class="sec-t">🏛️ المكتب التنفيذي المنتخب</div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="lbl">الرئيس</label><input type="text" id="b_rais" class="inp"></div>
+                    <div><label class="lbl">نائب الرئيس</label><input type="text" id="b_naib" class="inp"></div>
+                    <div><label class="lbl">مسؤول المالية</label><input type="text" id="b_mal" class="inp"></div>
+                    <div><label class="lbl">مسؤول الثقافة</label><input type="text" id="b_thaq" class="inp"></div>
+                    <div><label class="lbl">العلاقات الخارجية</label><input type="text" id="b_elaq" class="inp"></div>
+                    <div><label class="lbl">مسؤول الإعلام</label><input type="text" id="b_ilam" class="inp"></div>
+                    <div><label class="lbl">مسؤول التنظيم</label><input type="text" id="b_tandhim" class="inp"></div>
+                    <div><label class="lbl">مسؤول الرياضة</label><input type="text" id="b_riyada" class="inp"></div>
+                </div>
+            </div>
+            <div>
+                <div class="sec-t">👥 المناديب المنتخبون</div>
+                <div id="mandRows" class="space-y-2 mb-3"></div>
+                <button class="add-btn" onclick="addMand()">➕ إضافة مندوب</button>
+            </div>
+            <div>
+                <div class="sec-t">⚖️ اللجنة المستقلة للانتخابات</div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="lbl">الرئيس</label><input type="text" id="c_rais" class="inp"
+                            value="محمد الأمين أعبيدي"></div>
+                    <div><label class="lbl">نائب الرئيس</label><input type="text" id="c_naib" class="inp"
+                            value="محمد محمود السالم"></div>
+                    <div><label class="lbl">المقرر</label><input type="text" id="c_maqar" class="inp" value="عمر افال">
+                    </div>
+                    <div><label class="lbl">المراقب</label><input type="text" id="c_muraqib" class="inp"
+                            value="رئيس مكتب CESAM-MARRAKECH"></div>
+                </div>
+            </div>
+            <button onclick="generatePDF()" class="btn-dl">📄 تحميل المحضر الرسمي</button>
+        </div>
+        <div class="text-center pb-6"><a href="/admin.html" class="text-gray-500 text-xs hover:text-gray-400">← لوحة
+                الإدارة</a></div>
+    </div>
+
+    <script>
+        var LOGO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAD+AP4DASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3eiiigAooooAKKKKACiiigAoprusaM7sFVRksxwAK4TxB8V9C0gtDZFtSuRxiE4jB937/AIA1cISm7RRMpKO53tUdQ1nTNJTfqF/bWwxkebIFJ+g6mvBNa+J/iXVyyR3QsYD/AMs7UbT+Lfe/IiuUihvNTutsUc91cOc4VS7t/WuuGCe83YwliF9lHvOofFzwvZkrBJc3jD/nhFgfm2K5u7+N5yRZ6GPZprj+gH9a5PTvhd4s1EBv7OFqh/iuZAn/AI7979K6iz+Bt84Bvdat4vUQwmT9SVqvZ4aG7v8A15E81aWyM2b40eIXP7qz06Me8bsf/QqqN8XvFJPD2a+wg/8Ar120HwP0hQPtGq30h7+WET+YNW1+CvhkDm41I/WZP/iKPaYZdB8lZ9TgE+MHihTz9if/AHoD/Q1eg+NWtqf9I06wkH+wHQ/+hGuwf4KeG2Hy3epof+uqH/2SqFx8DdPYf6NrVzH/ANdIlf8Alij2mGfQOWsupXs/jdaMQL3RZo/VoZg/6ED+ddPp3xP8K6gQv9oG1c/w3MZT9eV/WuDvvgjrMIJstSs7kDtIGjJ/mP1rlNT8AeKNJDNcaPO8Y/jgAlGPX5c4/Gj2WHn8L/r5i56sd0fSNtdW95CJrW4iniPR4nDA/iKmr5NtL++0q58yzubi1mU4JjcofocV3eh/GDW7ArHqcUWoQjqxHlyD8RwfxH41nPByXwu5ccQnue70VzPh7x7oHiPbHbXXk3Tf8u9x8jk+3ZvwNdNXLKLi7M3TTV0FFFFSMKKKKACiiigAooooAKKKKACiiigAoopksscETyyuscaAszscBQOpJoAfXI+LPiFpHhcNBu+16gBxbRN93/fP8P8AP2rh/G3xXkuDJp3h12jh+6970Z/9z0Hv19MV51pGi6n4i1EWun28lzO5yx7L/tMx6D3NdtLC6c1TRHNOvraBo+JPG2teJ5GF5clLbOVtovljH1Hc+5zTvDvgXXvExV7K0KWxPNzP8kf4Hq34A16z4T+EmmaQEutY2ahejnYR+5Q+w/i+p/KvRlVUUKqhVAwABwKqeKjBctJCjQctZs820L4NaLYhZdWmk1CYclB+7jH4Dk/n+FegWOm2OlwCGws4LaIfwwxhR+lQazrNtodrFc3Yk8mSdISyjIQucBm9B71i674ui8P+KLG1vp4U0+5t5MlQWkWUEEZAycEZA461yuVSo9dTZKENi8/izTvOsFhLzR3l49mJQpVUkUHIOcHkrgYo0rWb+/1aa0uLCC1WCLdKv2pZJEYuQmVHQMo3Zz7Vx81prHiGbV5rC1vFiW8tb/TWv1MQEiYDgBuQpHI4rSbQ/Fa6pfa6b+xsppbZUkgs7drhnCZIxvKgtziqcIpC5pHQS+KtMjtZrndK8UF8LCUqn3JSwXnPYFhzUMnjLTF1qHTI1uJnkuPspnji/cpLgnYXOBnjoM1ySaNqt1oWo6XFY6g82p3cN3JeXiRQrGTsdm2qcgjbjAB5q9qngN7vxBbCymvrXTxdG9nkW9IUSHOREg5ViT97sDxRyU1uw5p9D0Ciua/4Q8j/AFfiTxAh/wCv3d/6EppP+Ee16D/j08XXeB0W6tYpfzICn9az5Y9y7vsdIzqgBdgoJwMnHNU7nV7K01G2sJpdtxco7xrg42oMsSegHPevP/FfhTxbqQWWWa11ZgAkCRE232Z9wIlALEMeCD6du9R6+2uX13qV/NpFxZTyWUWlWkbMJBvmkO9wykjAA6/SrjST6kubXQ7e/wBB8PeKbRZrmztL2KRcpcJgkj/ZdefyNed6/wDBONg02gXxVuot7rkfg46fiD9a9W0+yi07TraygGIreJYk+ijFFnqFpqCSPZ3Ec6RuY2aM5AYdRmlCrOHwvQJQjLc+VtY0HVfD915Gp2UttJn5WYfK3+6w4P4V1Phf4paxoZS3vmbUbEcbZG/eIP8AZbv9D+lfQF9YWmpWr2t7bRXED/ejkUMDXkXi74ONGJLzw2xdRybKRuR/uMev0P511xxFOquWojB0pw1gz0fQPE2leJbP7RptyHx9+JuHj/3h/XpWvXyjbXWpaBqnmwST2V7A2DwVZT3BB/ka9t8EfEy18QeXp+qbLXUjwrdI5z7eje35elZVsK4e9HVGlOspaPc9BooorkNwooooAKKKKACiiigAoopksscELyyuqRopZmY4CgdSTQAy7u7ewtJbq6mSGCJdzyOcBRXgPjv4g3PiedrOzLwaUjcJ0abH8Te3oKT4g+O5fE96bOzdk0qFvkXoZmH8Z9vQVL8Pfh7N4ouBfXweLSY25I4M5H8K+3qfwHt6FKlGlH2lTc5KlR1HyQKXgrwBf+LrgSndbaajYkuCPvf7KDuf0H6V9BaHoOm+HdPWy022WGMcserOfVj3NXbW1gsrWO2tokigiUKkaDAUe1Z+qm2Op6THNd3MEjTN5KxSbUlYISVf1GMkD1Fc1WtKq/I2hTUF5mtWLq/iew0mdbT97d6hIMx2Vqu+Vvcj+Ee5wK5q3j8SLrl14Uh1gC1ijFyL9xvuVhckCMdt2QfmPbHFdZo+g6docDJZQYdzmWZzuklPqzHkmocVHfUpNvY5rWNK8S+JNIuRqMcdvasmV0q1kUyTEchXmYYXkfwj8afpvghoomy0WmlnlDtZfNPJGy4XfM+WDqcnKnFX/EvjvQvC6sl5c+bdY4toPmf8ey/jXkmv/F/XtULRacE023PA8v5pCPdj0/ACtqcKs17qsjOcoReurPdLi+sNGs4/t19FBEihRJcygFsDuT1NcrqHxZ8J2JKpeS3bDtbwk/q2B+tfPckt7ql3ulknu7mQ9WJd2/qa6LTvhv4s1IBo9JlhQ/xXJEX6Nz+lbfVKcdZyI9vKXwo9BufjlYKT9l0W5kHbzZlT+QNUG+Os+fk0CMD3uif/AGWqFr8EdckAN1qNjDnsm5yP0FaKfAqTHz+IEB/2bTP/ALPRbCr+mF67CP46yZ/eeH1I/wBm7/8AsK1LT436PIQLvS72HPeMrIB+orJk+BdwB+61+Jj/ALVqV/8AZjWTefBfxHAC1vcWNyB0CyMrH8xj9aOXCvZ/mF6yPUdN+JXhPUyFTVo4HP8ADcqY/wBTx+tdTFNFcRLLDIkkbcqyMCD+NfLmp+C/EmjhmvdHuVResiL5ij/gS5Aqjpmt6pos3m6bf3Fq2ckRuQD9R0P40ng4yV4SBV5LSSPq+5gW5tZbdmZVlQoWQ4IBGOD61wun3+qeFI7jRba2j1y10yNVItF8u4hDAlA6Hh8+qnPciuT8PfGq6hKw6/aC4j6G4twFce5XofwxXrGi69pXiC1+1aXdxTrxvC8MvswPI/GueVOdLSS0NVKM9nqctZ+IryGw0G2k1SC51K5vWGoYKkQoqu8icfd24UZ9q6Hw1rc/iC1uL/7MIbEzFLNyTumjHG8jsCc4qp4i8DaR4hMk7o9rfNG0f2q3bYxBGMNj7w9j24pmja2+mS22ga3ax2F0qiO1li/497kAYAQ/wt/snn0zSfLKN4rUaunrsN8YeA9M8W25eRRb6goxHdIvP0YfxD/Ir5717w/qXhnU2stQhMci8pIv3ZB/eU9xX1fWR4j8N6f4n0t7HUIsjrHIv34m9VP+c1dDEOno9ialJS1W55p8PPiWZmi0bXpv3hwtvdufveiufX0P5+tetV8veKPC9/4U1ZrK9XKn5oZlHyyr6j39R2r0v4Y/EA3XlaBq82ZwNtrO5++P7jH19D36deutegmvaU9iKVVp8kj1aiiiuE6QooooAKKKKACvGfiv42NxM/h3Tpf3MZ/0yRT99h/B9B39+O1dx8QvFg8L+H2MDgahdZjtx/d9X/D+ZFeBaLpF54i1uDT7UF57h+XbnaOpY+wHNduFpL+JLZHNXm/gRveAPBU3i7Vsyho9NtyDcSDjd6Ivuf0H4V9H2trBZWsVtbRLFBEoREQYCgdqpaBodp4d0a302yXEcQ5Yjl27sfc1X8U+bc6Jc6baTiPULuF1t1LbTIQMsoPYkcfjWVaq6s/I0pw5I+ZzPjWaXSb9dXtby/trOWIrdXVkBNskTHlqUY4CnLZx1OBxW3p9lN4r8H2Y8SWZhunAlxGxR0YH5XGOUbHOM8ZxXL+FtDtbvxTcxaho1rYy2KxXC21nKTEpbOxZV+60igZyP71egavq9loWmS6hqEwit4hyT1J7ADuT6Up6WitwjrdvYp2Wm6R4Usbq6MpjVv3lzd3Uxd3x0LO3J9hXk/jL4u3V+0lj4eL21ryrXRGJJP8Ad/uj36/SuX8Z+OdQ8XXpDloNPjbMNsDx/vN6t/LtWj4I+Gt94nKXt6XtNLzw+Pnm/wBwHt/tH9a6oUY017StuYyqOT5YHJ6bpWp6/f8A2ewtpru5c5bHP4sTwPqa9Y8O/BWJAk/iC7Mjdfs1scKPZn6n8MfWvTdH0TTtBsVs9NtY4Ih12jlj6sepP1rQrGri5S0jojSFBLWWpnaVoOlaJD5Wm2EFsuMExoNzfVup/GtGuaTxDcR+JL2ymi8yzjkCiVIygtwIt7GRmOGB7benet+1uoL20iuraRZIJkDxuvRlIyDXNJPdmya2RNRXCxG9t/H+PEEty0c8kg0ho5cW4G0/IygD95tzy2c84qn4b16XRPBHh3eYjHLqL2VxJM2Ni75Pmzn/AGR1qvZO2hPOup6NRXHR+O4rnxRFYWkEU2mtcfY3vFmBPn7CwAUfw8EZ7np0rY1vXv7JuLG0hspb29vWcQwRsq5CDLEsxAGBScJJ2HzK1zZrntc8EeHvECsb7TovOb/lvENkmfqOv45rVXUoFjs/tX+iz3XEcEzDfuxkrwSCRz0NXKSbi7obSe54T4l+DepaeHuNEm+3wDnyXwsoHt2b9D7V5/aXupaDqXnW0s9leQtg4yrA9wQf5GvrauZ8VeB9I8WW5+1ReTeAYjuohh1+v94ex/DFddPFvapqjnnQ6xOX8FfFm21Zo9P13y7W8PypcDiOU+/90/p9Oleh6lptlrFhJZ30CT28g5Vv5g9j7ivmTxR4R1Pwnf8AkX0e6FyfJuEHySD29D7V2Xw8+J0mlvFpGuStJYnCw3LHLQ+gb1X+X06Orh017SkEKrT5Zno1tqF54Tu4tO1qdrjS5WCWmpP96M9o5j6+j9+9dYzqiM7sFRRksTgAVDcW9rqdi8E8cc9rOmGU8q6mvMtc0jW7fUrHw5caisugyMfsq3DMnnkdLeWRcnjtxyPcVzRSm+zNW3E7TXNF0jxz4dMJljmhkBa3uoiG2N03A/oRXzdrOkX3hzWZbC7Ux3EDZVlPDDsyn0NfS3hTV7bV9BSa3tBZpC7W7QKQVRkOCFI4K+hrF+I/gxPFOime1Qf2naqWhI6yL3Q/Xt7/AFNbUKzpy5JbGdWnzx5luVvhz40HifSvst24/tO1UCX/AKar2cfyPv8AWu3r5V0TWLvw7rUGoWpKzQP8yHgMOhU+xHFfTukapba1pNtqNo26GdAy+o9QfcHI/CliaPs5XWzKo1OZWe5dooorlNgprusaM7sFVRlmJ4Ap1cF8V/EB0jwsbKF8XOoExDB5EY++f5D/AIFVwg5yUUTKXKrnkXjbxI/ifxLcXgY/ZkPlWyntGOh+p6/jXrfwk8JjSNE/ti6jxe36gpkcpF1A/Hr+VeTeBfDp8TeKrWydSbZD51wf+ma9R+JwPxr6fVQihVACgYAA6V2YqahFUonPQjzNzZxmqeL7qHXnt9LWK8NrlLrTZAYrhuf9ZETw4x2H9a0lbRfHejK8bzbYpcgqWimt5R1HqrAHH41x3jTX4NSlvNLn8PxtcQ3ItLS7a5USpKwBVwgw+3kHjOcV6Rpll/Z+mwWzSvNJGiiSaQ5aRgACzHuTiuaSUYp7M2i7troc9a+F9K8NXM2rz3GLW1VpozLndExXEjs+cyFhjr0xxXiPjnxnc+LtWLgtHp8JIt4Se395v9o/p0rqPi74yN/fHw9Yyf6LbNm6ZT/rJB/D9F/n9KyPhp4IPifUze3qH+y7VhvB/wCWz9Qn07n/AOvXXRioR9rUMKj5nyQNb4bfDb+1vL1rWoiLEHdBbsP9d/tH/Z/n9OvuSIsaKiKFVRgKBgAUIixoqIoVVGAAMAClrjq1ZVJXZ0QgoKyCq11fQWclrHMxDXU3kxcdW2s38lNWazNd0i21mwWC5mmgMciyxTwPteJx0ZT69fzrNWvqU720OE1SHXpfGb6bZRi6ura6Go2txcSgRpbyKUeJh125BAAFbGj+B9TstMisrjxPfRwJnFvYhYkQEk7QxBbAyec9MVt6HoFlpEs9xHdXF5e3GBNdXUu+RgOg7AAegFbdayqvaJCh1Zz9n4L0SzvIbwQTT3cTbknubmSVgfX5mI/SmX/hK21C6s4n+zx6RbTfaTYpbjEs3PzMc4I+bOMcnqa6CaaO3heaaRY4kUs7ucBQOpJrz9fjJ4b/ALUltZEult1bal0E3I3vj7wH4GlH2k9Y6jlyR0Z1a+FdBj1G2v4tKtYrm2z5TxRhNufYcHqevSuW8UxQP4qEniS2v5dFjiU2UlorlI5OQ5k8v5gemO2K7HS9c0vWofN02/guVxyI3BI+o6j8a0KSlKL1BxTWh52bXVrvV9LuNB0dotP0eORok1KRkM7ycHafmbhc4LetTaz47urU2VhJaPol9cXCxSTX8fmQxpg5ZWU7W5AHUYzXfVVvYrG9t3tryOGeFxho5FDA/hT9om/eQcjtozE8CSvceFLe5kD755JZCzOzB8u2GG4khT1A966WmQxRQQRwwoscSKFRFGAoHQAelPrOTu2ykrKxS1bSbHW9OlsNQgWa3kHKnsfUHsR6184+NvBV34Q1LY26awmJ+z3GOv8Ast6MP1619N1n63o1nr+kz6dfx74ZRj3U9mHoRW1Cu6T8jOrTU15nkXws8ftZzReH9VmzbOdtpM5/1bH+An+6e3ofbp69rGkWmuaXNp97HvhlGOOqnswPYg818w+JfD134Y1ybTbsZKHdHIBgSIejD/PXNe3fC7xkfEWjGwvZN2pWSgMSeZY+gb69j+B71viaS/iwM6M/sSMC6j1OwtrXwtfndDCvlw6bpXE1+oJ/eSN0iQ9+5Oa9I8Ow6lb6PFFqcVpDKvCQ2uSsSfwqSTyR61dvJIrK2uL9od7RQszbFy7KoJ2j/CuKXx5eXMFsosVtbuZEvIYEYXLXVv1ZUCkYkx2PvWDcqi0RokoPVnB/F3wmNJ1hdatI8Wl8x80AcJN1P/fQ5+oNT/B7xMbXUZNAuX/c3OZLfJ+7IByPxA/Me9eueIdGh8TeG7nTplKfaI8oXHMb9VP4HFfLoN3o2rfxQ3lnN+KOp/xFdVF+2pOEt0Y1F7OfMj6xorO0HV4td0Kz1OHAW4jDFR/C3Rh+BBFaNee007M6076hXzt8T9aOr+NLmNGzBZD7MnpkfeP/AH1kfgK971nUF0nRb3UHxi2heTB7kDgfia+WYYp9T1GOJSXuLmUKCerMx/xNduChq5voc2IloonuXwa0IWPhuXVpUxNfv8hI5Ea5A/M7j+VelVV02xi0vS7WwgGIreJYl+gGKp+JtUbRvDt7exjMyR7YV/vSN8qD/voiuWcnUnfubRShGxjaNbQav441XXxDH5dqo06CTaMuynMjZ9iQoPsas+O/Eo8L+F7i8Rh9qk/c2wP989/wGT+Fafh/Sl0TQLPTwdzQxjzG/vOeWb8WJNeI/F/Xzqfir+zonzb6euzAPBkPLH+Q/A1rSh7WrboiJy5IX6nF6Vpt3r+tW9hb5e5upMbm568lj9BkmvqXRNHtdB0e202zXEUCbc92Pdj7k815l8FfDoS3uvEE6fNITBbZHRR95vxOB+Br12qxdXmlyrZCoQsuZ9Qoorh/FnxHstCd7OxVby+XhgD+7jP+0e59h+lcUpKKuzso0KleXJTV2dHqetDStT023ngP2a9kMP2ndxHLjKKR/tcgH1HvV28/49/xFfPOseLtb13cl9fSGEkHyY/kQY5GAO4PIJzXsHhLxIPEnhZJZWBvbciK5Hqw6N9GGD+Y7UQnGpG8ehvi8DVwlvaap9vyNWpo7qSMgbsj0NQ15lr3iLTNQ8d+HmF2y21oZHlyjBlfoFK4zklQMY71rTg5vQ4ZSUUN+J174t1V5LSHS7mLRouSYfnM2P4n25wPY/U+3kdfRvi+7TTtDXUZB8tpcwSn1x5ihv8Ax0ml0DwF4RtVWWLTYrl2+dZLg+aCDyMA/L+ldlLEqFPVHPOk5S0ZjfCfwhpcWi2viNsz30wfYW+7DhipAHrx1P4V6NNdqnyp8zfpVeR44YhbWsaRQpwFRQAPYAVXrjqTc5OTOiEVFWHvNJIfmYn27UyiioKNheEGfSsvQtaGuwXNzDAUtEnaKCUtnz1XguB2G7IHriub+JHiJtL0JNMtJNt9qClAQeY4/wCNv6D6+1eeaH428QeG4ordXS6sYgFEMg+6o9COR+oqZzVNK/Uqgqdaq6XtIxl0Tdr+h75RXP8Ahnxfpnii3LWrmO5QZkt5D8y+/uPcV0FNNSV0OpSnSk4TVmjiviX4SXxL4daa3jzqNmDJCQOXH8Sfj29wK8G8N65ceG9ftdTgyTE/7xM/fQ8Mv4j9cV9XV83/ABO8ODQPF0zQpttL0faIsDgEn5l/A8/QivQwlS6dORx142fOj6Js7uC/soLu3cSQTxiRGHdSMiuS8M6bZaF4v1nTvs0SzTn7bbT7RvaJjhkz6K3b0YVi/BjXze6FcaPM+ZbFt0We8bdvwOfzFdN4xH2A6b4hThtNuAJj6wSYST8sq3/Aa53Bwm6f9eRopKUVI6ivAvjHoQ07xPHqcSYh1BMtgcCRcBvzG0/nXvgORkVxHxX0j+1PA9zKq5lsmFwv0HDf+Okn8KMPPkqIKseaBy/wW1oyW19okjcxn7RCD/dPDD89p/E16xXzT4A1U6R4202ctiOWTyJPTa/y8/QkH8K+lqvFw5al+4qErxt2OE+LmoGz8DvApw13OkP4D5j/AOg/rXl/wu04aj4+sNy5S2DXDf8AARx/48VrrPjfd86PZg/89ZWH/fIH/s1R/A2zD6nq16R/qoUiB/3iSf8A0AVtT9zDN9/+GM5e9WSPW9V1i30hInuUnKSFgXjiLhAFLEtjoMA1x39t3PirXtF0y50yayRJf7TYOQweFVzEcjjJcjI7Fa7TV2kXSrnyrE3zMm37MHCmQHgjJ46E1wHhSGLQ/GLfatHv9MW7tktLZrmTzhI6lmYFwSM4C4HotctNLlb6m027pHoWpX0emaXd30v+rtoWlb6KM18nSyXGp6k8rZkubqYsfVnY/wCJr6E+LOoGx8A3SKcNdSJAPxO4/oprx34b6cNS8e6XGy5SGQzt/wAABYfqBXVhFy05TMa/vSUT6I0HS49E0Gx02IDbbwqhI/ibufxOT+NaBIAyawdV8aaBo/mLc6jE0qEgwxHe+R2wOh+uK8t8WfEi912N7OwRrOxbhuf3kg9yOg9h+deXUrRWr3PYwuXV67SirLu/61Nvx38RifM0rQ5uPuzXaH81Q/1/L1ryvqcmmSMAuM89eOtIC28Bj09O9ccpObuz6Og6OEfsIK70u/N9ySt/wh4gPh/W45nci0mxFcjttzw3/ATz9CawKkhgluJBHDE8rnoiKWJ/AU6VRwmmdONw0cRRdOXy8mfRE8S3VrJEXYLIhXchwRnuDXjNrDp918TLjR57Em1bdZRsHPmIV5Em7qWyp59DjpxXeeA9Tu207+x9TilhvrNAY1mUq0kJ4U8+mNv4D1rB8b+Ho/D06eLtNMrXaXqyzh2yuD6ccDOB+NezQaUnHvsfAVotb9NzvNS0W01bRm0q78xrdlVSQ3zcYwc+vFW7K0h0+ygtLZSkMCCOMZJwAMDmq+k6taa1psV9ZyB45ACRnlDjJU+hGaz/ABT4qs/CtlHPco8skrFY4kOC2B1z6dPzrBKbfIXeKXMb1V5b6zguYraa6gjnl/1cTyAM/wBB1Nc/4T8bWHitZIkja2vIxuaBmzlfUHjP9K53U/hhNd+LBqFtexpZF1kZZy00m4dR833gcdz3q400pONR2Jc21eOp6VUdxcRWttLcTuEhiQu7HoABkmpBwAK8++I+p3dxEND06CafAWa9aJCwRM/Kpx0yRn6D3rJW3eyNoQlOShHd7HI6rq02v6xcatOCvm4WGM/8s4h90f1PuarhGKswHyr1NUo70btkq7COM10Oj2w1C0vrRCPOZFki9ypPH5GuDEYqKi6r20+Svb8D5TH5VjqWL5MVC0pXt1TstEnt5GJGbmwu477T5WhuIjuUocH/AD7V7L4K8d2/iSEWl0Vg1NB80fQS47r/AFFeYWENli4W/Z45EU7FAOdwzwR/T2rJeJlnW4tpGinRtyupwcjofY1MKlptQT0+5+h7eW5zGdGGGzGX+Ge7jbpLrbt1X5fS9effGDRRqPg/7ai5m0+QSA99h+Vh/I/8BrK8OfFUwKtp4ihfcvAuolzn/eX+o/Ku4Oq6J4q0u60+01G2n+1QPGYw434IIztPPf0rvo148ykmeriMFVhC7V4vZrVP5nhHwz1c6R46sCWxFdE20nvu6f8Aj22vovUrGPU9MurGYfu7iJom+jDFfJatLZXgYZSaCTI9mU/4ivraxulvtPtrtPuTxLKv0YA/1rvxsbSUkefh3dOLOB0Dx5eSWNro9toV5favaxeVMDIkUbFDsLBmPIyOeODXceVJqeiNBqFsIJLmApNCHDhdwwRnvXBRaXqd141u9Ns0ghtdP1ZNTa7Z/wB4FlQFo1XHRjuzzivS656vKmuU1hdrU+Qp4pbG+khYlZoJCpI7Mpx/MV9U6TejUtHsr4dLiBJf++lB/rXzr8QrP7D4+1iIDAafzR/wMB//AGavaPhld/a/AGmknLRB4j/wFzj9MV1Yv3qcZmNDSTiecfGiYv4utIu0dkv5l3/+tXV/A+AL4e1O4xy90Ez/ALqA/wDs1cT8XmJ8dOD/AA20YH616D8FVx4KnPrfOf8AxxKKmmGQQ1rM7rVdMh1eyNrPJPGpYMHglaNwR6Ec1yfhYlLq50+4j1DUYY9WnW3ubhzMLbykXG5mORklgMd811eq6b/aloIRd3No6sHSa2fa6kfoRyeCCKi0HRY9C042iTy3DPK80s0xG6R2OSTiuJStGxu1eVzzr45XJXStItc8STvJj/dUD/2asH4I2vmeJr+6Iz5NptHsWYf0U1f+OrH7Toidgkx/VP8ACnfApB52uP3CwD/0P/Cu1aYX+u5g9a5N8VvDX2e7TXbZP3cxCXAA6P2b8Rx9R715pX0/qenwarptxYXS7oZ0KMPT3HuOtfN2saVcaLq1zp9yP3kL4zjhh2I9iOa8KvCz5l1Ptcnxftafspbx/L/gFAgHqKasYA5AJ9cU+vRfBvw6lvEXVNaiaO2A3RW7DDSe7ei+3f6dc4RlJ2R24uWHpL21ZbfiZfg/wNNr8kd1el4NPLcEcNL/ALvoPevY7fR9O0bThBp9pHAmRnaOW+p6n8azNatWn8O6ha24Ks1rIkYjGCDtOAMVU0HVbW1+G9ncRQ3Un2WERywKpaYSKPmGDznOT9K76dFRjdbnyWMzCriZ+9pHsReJrWaNLfW7FC15pxLlF6zQn/WJ+XI9xWB8QvFNjH4YtYYsXEep7WwpwTCCGY+xPA/P0qlp/wAXba41gw3tibawb5Vl3bmQ+rD0+nT3qtrngy1v9Sewhl2NPE1xpEu/MZGSzw+mMtuBHZu+K7oU+SS9p0PMlLmT5DnPCXjV9F8RvJKNmmXTBJIRyIlAwpH+6AB7iuq+Llp9s0fTNUtykkETsrSIQQVcAqfcfL+teT3VrPZXUttcxNFNExV0YcgitfRdWCWl5pl/LLJp8tvIVh8zAWUDcrDPQ5UD8a65UlzqpHoYKb5XBnY/CHRpH1C61iSMiGNDDEx7ucE4+g/nXrckscKb5ZFRem5jgV45ZePE8ISR6Tp9n9psYUXzRM+2Tzjy/wAw4wCcdO3Wtfxjq+n+MPh42pWkxiezuEZ4ZPvBj8u38myD7fWuWtTnOpzPZm9OcYwst0eg6vqcOj6VPfTAssa/Ki9XY8Ko9ycCqvhzTJtP09prwhtRvHM92w/vn+EeyjAH0rkrK/sPsumy310F0fQ4Isu5z592UBAA77Aeg7n2qfSPinY6rrIsBpl2qyvthdP3jN7so6fhmsvZT5Wor1L5431O08ReDtH8Q2jNc26x3IXK3MQw447+o9jXjV/p2p+DdWQSkmPdmGdR8rD/AD1FfQj/APHu3+5/SsG/0y01i1ayvYhJDIcEdwfUHsa4KtCNRf1+J6FPEKVP6viFzU396feL6NHmT6xo+qxh9Qs3SfHMsB+9/n3zWbczaZECLCCZmP8Ay0uGBx9AP60/xL4U1DwjcksrXGmO37ucD7vs3of0NZEcsco+RgfbvXnUcHTpPlTaXa7t/wAMfM51g8Zh71OVTg9qiir/APb3Z/0hXRZBh1BHvXq/w18LR6XYNq0sZFxdriMN/BH/APX6/TFcT4Q0Bte1uOJ1P2WH95Ofbsv4/wCNe5KoRQqgBQMAAdK9KEE3zMWRPERpyfO1B9Luz87Hyv4xtRZ+M9ZgAwou5CB6AsSP0NfQPgOb7f8ADzScuwzbeTuU4I25Tg+vFeH/ABLUJ8RNYA/56IfzjU17J8KWLfDnTc9mlH/kRq9bE60Yv0/I9Kj/ABGjJ1nR5tP1SP8AsuTxPcLNaRI8unvGRJsLBd0rc7ufTuK7HQNR1G+ikW/0e5sBEFCPcTI7S9ck7eh4H51nDwZNCzRWfiTVrSyLFktoWTEeTkhWKkgc8DtXSWsH2W0ht/Olm8pAnmStud8DGWPc+9ck5Jq25tGLTPAPjFAIvHjuB/rraNz+q/8Astdz8GZjJ4NuIz/yyvXA+hVD/U1yXxtUDxhZt62K5/77euj+CbH/AIR7Ul7C6B/8cH+FddTXDIwh/GZx/wAYE2+ON39+1jP8x/Su++CjhvBl0vdb5/8A0BK4/wCNUG3xNYXGOJLPZ+Ku3/xVdD8DbjdpOrW2eY50k/76Uj/2Wiprhkxx0rM9XorkviDNqOn6A+r6bq7WMtmpYx7FZZ8kcEN3HOKzPB/ibxFrGteQ6w6ho6qd2ppbNAC2OAAx+bnjgVxqm3HmN3NKXKc18dYz5uhydisy/wDoFN+BcuLvW4s/ejhb8i/+Na3xvtDJ4d067Az5N0UPsGU//E1yfwXvBB4ynt2OBcWjAD1YFT/IGuyPvYVr+tzB6Vj32uM8a+BV8UzWtzBOltcx/JI7LncnX8wf5muzorzpRUlZnfRrTozU6bszgdC8DaXoMgkZftd2p/10q/dP+yvb9T713M//AB7v/u1myf61/wDeNac//Hu/+7QoqKshVa1SrLmqO7MxGCOrHopya8L8FeM4dH1KeLVhIbSe4NyJFJJilwyliB1BDEH8K92h5nQH+8K8Y+MHhpdK16PVrdSINQyXH92UdfzGD+ddeF5ZNwl1OStdWkugaBpVg3xEudTunRdKBN1byzFQkhlJ8sHPf72B1ylema/pjatpYNo6peQMLi0lHRZF6fgeh9jXzxZTrLLDa3t1LHYF1Mu0ZwF3HgevzNj/AHq9c+E+qR3OjXunqX/0acvGrtkrG/QfmD+dbYinKPv32IpST93uc78Rjp+q6JpevxReTfTOYLiPuCoO5W91Ix9D9K84r0L4sWSWOswNBIRHdhp3h7CThSw+oA/KvPa6cP8Aw1Yxq/GwpdzBSoJ2k5IzwaSta18N6vfy262VhcTR3H+qlEZCMM4Jz0AB9a1bS3ISb2PVPAM+l6h4HtkuxBHHYTOsyyFQjkg8tnqCG/MVz3gzTIdF8e3VxLOsOnQBkguJiFWbf9za3Q5XJ47CuW1ewTTdRh8Om5VRFKpurj+HzGAyf91Qcf8AfXrxFBfXsUd9bLFFfwQQtHvddyxLnaJB7jOAT03cVy+y+Jp6SNufa62PqTcr2hZGDKUyCDkHis2P/Wp/vCvO/grqrzaTqulySE+QRNEpOcBgQQPbIH516JH/AK1P94V51SHs5uJ1wlzRuXdQiiuLGWKaNZI3GGRhkEe4rzjUfhZY387Ppdy1k558thvT8O4/WvSrv/j2b8P51Wsv9f8A8BrGcIz+JHVh8VWw7vSlb+uxn+D/AA0PDOii1eQS3LsXmlGcE9gM9gP610FFFUkkrIxlLmk5PqfMnxIkEvxC1hh2lVfyRR/SvafhXGY/h1pef4vNb/yI1eA+JLwX/ifVbsHKy3crKfbccfpX0l4JtTZeCdGgIwwtUYj0LDcf516OK0pRj/Wxx0dZtm9RXHeK5b6x8RaTqP2PUL3TYEk3QWJywmONrMmRuGM/T+d/wWupLoJOpC6UtcSNbpdnMywk/IH964nD3eY6FLWx5N8a3DeMrVB/DYpn/vt66b4KJjw3qD+t3j8kX/GuK+Llx5/xAukz/qIYo/8Ax3d/7NXofweg8rwQ0mP9ddyP+QVf/Za7aumGS9DnhrWZj/G6zLWGk3wHEcrxE/7wBH/oJrK+CN8IvEeoWROBcWwce5Rh/RjXefE/TjqHgS+Krl7YrcL/AMBPP/jpavGPAGp/2T450q4ZsRvN5L+mHG3n8wfwope/h3Ht/wAOKfu1Uz3bx8tuvh5Lm4s7a4EF1Eym6BMUW5ghdh3ADHrx+VZXgjxLqer6xNDO0UlhLFJNb+VBtWFVlMaruHDBgCfX5a7a+jaXT7iNIo5XaJgqSDKsccAj0ryzwxqOvX2s2b2st20FobW2uLdIRDAm5HM+5MAAqQMEe3rXNBc0GuxtLSSZ1/xK006n4C1NFGXhQTr/AMAOT+ma8F8FamNH8ZaVes21FnCOfRW+Un8ia+o5okuIJIZVDRyKVZT3B4NfJ2t6ZJouuXumy53W0zICe4zwfxGD+NdGDalGUGZV1aSkfWlFc94J1weIPCNhfFt03l+XN6+YvB/Pr+NdDXDJOLszpTurmRJ/rX/3jWnP/wAe7/7tZkn+tf8A3jV5rmB0KljgjHSkMooxRww7HNcF8ZbpZvClmjIBJ9tUqfbY+f6V6KIrZukxH1ryv42Ygs9HhV9wkklf8go/9mrfDK9VGdb4GeSJdSx2ctqpURSurv8AKMkrnHPXHJ4r2P4R+G7i20a41uTpefJEg67FJyfxP8vevFq+lPhxdqfAmkowAAiIB+jEV24xtU7Lqc1BXnqeU/Fy483xbDD2htVBHuWY/wBRXA11vxNuPtPxC1Vh0RkjH4IoP65rkq2oq1OJnUd5sK+jfA8hufBmkFRk/ZwnH+zx/SvnKvoz4UTI3w8sixAMbyoT/wADJ/rWGNXuJ+Zrh/iOP+K3hGDT7Q+IbeTypriVYbmL+F8jIYeh+UZ9f5+USzl5pnjRYElJzFGTtAznbyScDA6k9K9u+M14ZPCdtGowrXqfjhHrwyrwrbp6k10lPQ9w+Fnh1NI0b+13Ja61CLAGeEjzwPqcA5rvY/8AWp/vCsL4eBLrwDpMzy4xGyY/3WK/0rpQlqjA+axIOeK82s26juddNJRVixd/8ezfh/Oq1l/r/wDgNSXFzHJCyqTk+1R2X+v/AOA1mWaFZXibUxo3hnUtQLYaC3Zk/wB7GF/UitWvLPjXrgt9GtNFjf8AeXT+bKB/cXpn6tj/AL5rSlDnmokVJcsWzxjTbJ9S1S1so8+ZczJEPqxA/rX1vFEkMKRRjCIoVR6AV8+/CHRjqXjJbx1zDYRmUntvPyqP1J/4DXv17dw2FjcXlw22GCNpJG9FAya6cbK81FdDLDq0WzzTxJb2uo+KNTmvtGv9ctwiQWj6e5b7JIo+dWAYbTkg5OeMV3vhuC+tfDWnQam5e9SBRMWOTux0J7n3rzjR9QSXxI40/Ute0i6vrrfJb3lstxDKxCsQCPunYV69BivTdc1FdI0K+1ByMW8DyDPcgcD8TWVW+kS4W1kfM/jO+/tHxprFyDlWunVT6hTtH6Cvefh9Zmx8B6RERgvD5p/4GS39a+cLaCXUL+G3TLTXEoRfdmOP5mvrC1t0tLSG2jGI4Y1jUewGBXRjHywjAyw+snIS6to7yzntZhmKaNo3HqCMGvlO/tJtL1S4s5MrNbTNGSPVTjP6V9ZV4R8YNENh4mj1ONcQ36ZYgdJFwD+Y2n86zwU7Sce5WIjeNz2nwxq6674a0/UlILTwgvjs44YfmDXCeLrcN4j1J9XsNavVMSf2Stjv8tDt+YkqQAwbnJ7VR+CevhorzQJn+ZT9ogB9DgOP5H8TXceOdLvNW0SGG1he5jjuUkubRJfLNxEM7k3fiD+FQ4+yquJV+enc0/Dj3L+HdP8AtsyTXawIs7o4bLgDPI6nPWvKPjV4eMN9a6/Cn7ucCCcgdHH3SfqOP+Aium0u707wvr1/BYxp5l5BG8Gi2nzSRyIhL7+qqTwOvPFdhrekQeJPD1xp93GY1uYv4sExt1B+oOPypQl7KopdBtc8LHj3wc8SjT9Zl0S4fEF980OTwJQOn4j9QK92r5JvbS90HWZbabdDeWcuMqeQwOQQfyINfSHgbxVF4s8Px3WVF5FiO5jH8L+v0PUfl2rXF09faLZmdCenKzYaykZ2O5Rk5o+wv/fWr1FcR0lA2MnZlNeNfGjdHqmlQN/DC74z6sB/7LXuleMfG/SZhd6frPmqYSn2Xy8chgWbP05/SujC29qrmVf4GeRV9GfC4R3Xw605WwWjMq5HUfvGP9a8e1z4fax4f8PxaxfPbeTI6r5cblnXcCQTxjtjrXs/gPRxofgOzdZ3naSH7WCi4PzqG2gc5/rXTi5xlTVn1MaEWp6ngfief7R4r1aUHKteS7T7biB+lZNSTmRriRpgRIWJcMMHOeaYqs5wqljgnAHYDJ/Su2KsrHO3diV7v8GwbrwdMjP8sV442j3VT/WvCK9t+CEjPoeqwBtu25VjjryuP/Za58Wv3RrQ+Md8bWSPw9psCYGbotgeyH/GvEK94+MunW58IwXRDedDcqFO7+8DnP5VxWsfD+0074aWfiJLiY3TpFNIpA24k24HtjP61GGqRjTSfVlVotzbR3PwoSS58DQhSMRzyJyenOf613IsZO7LXP8AwysLex8B6e0CkG5UzyZbOXPB+nAFdfXBWd6j9Tpp/Aij9hf++tSW9s8Mu4lSMY4q1RWZYyWWOCF5ZXCRopZmY4AA6mvlzxj4gbxN4nu9RyfJLbIFP8Ma8D8+v1Jr1H4v+MBaWX/CO2Un+kXADXTKfuR9l+rfy+teefD3ws3ijxNFFIhNjbYluT2IHRf+BHj6Zr0MNBU4urI5a0uaXIj2D4V+HjofhGOeZNt1fnz3yOQuPkH5c/8AAjVfx1qGv21wZLJbK60FoGgvIZAXAJJDF9vzKMcZGcd678AKuBgKB+Vea6n8L/LvZtR0S5jleZjJJb3pbDk8nEqEOv61zQmpTcpmsotR5YlnwTpa3WqtqRt9QskgAeO1eVZbZmaMR745B98bV/DNQ/GbWRZeFYtNRsS38oBH+wnzH9dtdf4X0aHQtBgtIrb7MT+8khEpkCO3LAMeozXg3xO18a74yuBE+62sx9miweDg/MfxbP4AVrRXtK1+iIqPkp27jvhbpJ1PxvbSMuYrNTcP9Rwv/jxB/CvoivOfg9oZsPDcupypiW/f5c/881yB+Z3H8q9GrPFT5qj8i6MeWAVzPj3w9/wkfhS5to03XUX7639S69vxGR+NdNRWMZOLTRo0mrM+VdB1ifw/r1pqcGfMt5Mlem5ejL+IyK+qbG8t9U06C8tnElvcRh0PqCK+f/il4XOh+IjfW8eLG/JkXA4ST+Jf6j6+1dH8HPFwjdvDd5JhWJks2Y9D1ZP6j8a7sRFVaaqROWlLklyMl1tJvC+qXOlWKSWVvO6fZLfT42+1XIxkyCYZJIbgo3BHTtXfeHvEkN0LXSNQuEGvpbhrq3UHKsFUnJAx/ED19fSr3iDT7vUNJuE024S11ExlIbkrygJBYA4yMgYyPY9q8zjex0u52CG50bTbgPA8ziRtQ1BhnLADlQDzuI9uhxWCtUjruau8GafxZ8FHVrL+3dPizeWyYnRRzLGO/wBV/l9BXk/hLxRd+E9bjvrfLwt8k8OeJE9PqOoNfTem31pqemwXdlOJ7aRcpIO/bnPf1zXi3xO+HjaXNLrmkQ5sXO64hQf6kn+ID+6f0+nTXD1U17KZFWDT54ns+k6tZ63pkOoWEwlt5lypHUeoPoR6Vdr5k8FeNr3whqG5MzWEp/f25PX/AGl9G/nX0Xo2t2Gv6dHfadcLNC/p1U+jDsawr0HSfkaU6qmvM0K8k+N06NBo9o3mgGV5GYL8gGAOvr1/WvW6jmt4bgATQxyAHIDqDg+vNRSnyTUi5x5o2OM8eWQ174cypp0VzMQI5IESFtz7T/dIBxjNaHw9vJbvwRpomt5YJIIhbssilSdny5GexAH6109FJz9zlDl97mM++0LSNTbdf6ZZ3Lf3poFY/mRXgmmaVBZ/GBtKeNUtTezQCPt5bBgB/wB8kCvopmVELMQqgZJJ4Ar511zV9O1n4tw39tN5Vkb2BTcA7chSql89hx19Oa6MK5PmXSxlWS0ZpfEH4bWPhXRE1PT7q6lBnWN0m2naCDzkAdwB+Ndf8FLeBPCV1comJ5LspI2eoVQR/wChGp/iXq+iaj4Ev4IdWs5JgUeNI5VcsQ44wD6Zrnfgt4htbcXehXE+yaaUTW6t0Y4wwHvwOKtuc8O77pkpRjVVjU+ME93f2+n+H7HTru4nmlFwHjjJXgMNvuecn049au+LzFa/CR9PuY7iF47SCIZhJy67cDPQcrXoEkEMxUyxI5U5XcoOPpUlcyq2UVbY1cLtvucR8KL37V4FtYDBNE1qzxEyKcPli2VPcfNj2xXb0UVE5c0nLuXFWVgrlvHHjK28I6QZMrJfzAi2gJ6n+8f9kf8A1qPGXjjT/CNkTIRPfyL+5tlPJ929F/yK+ddV1XUfEerveXjtPdTsFVVHT0VR6egrow+Hc3zS2MatXl0W4z/iYeINZ/5aXV/eS/UuxP8An6V9KeC/C0HhPQI7Jdr3L/vLmUfxv/gOg/8Ar1z3w18ADw5bDU9SQHVZl4U8+Qp7f7x7n8PXPoDyxxbfMkVNx2ruOMn0FPE1+d8kdkFGny+89zA8Ua2tjALK3gt7+7nGHsDciOWSIghig6k+3fmue8CyTNrdxDpNxqC6BDCN1pqEJ3QTEn92jHnAABI5HP41V8YeDL251SS6tbJtSF7K7lhIsb20nlqkR3dSinc2B7cevoNhb/2ZpcME11LP5EeHnuHyzY6ljWbcYwsupSTctehg/EHxMPDPhaeeNwLyf9zbDvuP8X4DJ/L1r520LSJ9f12002DO+4kALddq9Wb8Bk1ufELxWfFXiN5IWP2C2zFbD1HdvxP6Yrv/AIQeFzZafJr91Hia6Gy3BHKx55b8T+g9664L6vR5nuzCT9rUt0PSrS1hsbKC0t0CQwRrGijsAMCpqKK807AooooAyPE2gW/iXQrjTbjA3jdFJjmNx0b/AD2Jr5ou7W+0DWXt5d9ve2kvUHBVgcgg/kQa+rq8++Jngj/hILH+1NPjzqVsvKKOZ0Hb/eHb8vSuvC1uR8stmYVqfMrrc3vAfjCHxboiyOVXUIAEuYh69mHsf8RTtf0TVTrsOvaJLYi7S1a1dL4NsVC27cpXkEH8xXzz4f16+8M6zFqFk22SM7XjbpIvdW9q+mPDfiOx8UaRHf2L8HiSMn5o27qf880V6TpS5o7MKc1NWe5wmgeJn8O6ezpA97oMErfbdVAC+bPI/JiUkZQE44zn+fqDKksZVlDIwwQRkEGsG/8ACdpqWr2dzdSM1hZrmHTwoEIkz98gdeOxrIvvHd1b3N9c2+lLJoemzi3u7t5drbsgNsXHO0kfXtWUl7R3juWvcWpxHj/4WSWbS6r4ehMlsctLZqMtH6lPVfbqPp04Dw94l1TwxqAu9NnKE8SRNykg9GH+TX0z4f1WfWtIjv5rF7MTEtFHI2WMeflY+mRziuU8ZfC7TfERkvbArY6k3JYD93Kf9oDofcfjmuilibe5VMp0vtQLXhL4l6P4lWO3mcWOongwStw5/wBhu/0612tfKOueG9W8N3fkanZvCc/JJ1R/91uh/nW94c+J3iHQAkLTC+tF48m5JJA/2W6j9R7UTwifvU2Ea7Wkz6Qorz7RfjB4c1EKl8ZdOmPUSruTPsy/1ArtrLVLDUo/Msb23uU9YZA/8q5JU5Q+JG8ZxlsyeeCK6t5LedBJDKpR0boykYINczB8OPCltIZINL8tjwStxKP/AGauqopKUlsxuKe5zUvgLw3Ou2XTyw955P8A4qqcHwv8KWt9BeW9hJFLBIsiYuHI3A5HU+tdjRT9pNdWLkj2CisrU/E2iaMrHUNUtYGH8DSAv/3yOT+VcDrnxr023DR6LZSXcnQSzfu4/rj7x/SnClOfwoUqkY7s9QlljgiaWWRY40GWdjgAepNeW+MPi/bWiyWXh3bcXHRrth+7T/dH8R9+n1ry7xB4x1zxM5/tG9Yw5ytvH8sa/wDAe/1OTV7wt8Pdb8UOkkUJtbEnm6mUhSP9kdW/Dj3rshho01zVWYSrSlpAwf8AiZeINW/5b3t/cv7s7n/P5V7n4A+GsHhxU1LUwk+qkZVeqwew9W9/y9T0PhbwXpPhO22WUW+5cYluZBl39vYewq9e63Dp+rWtncxmKK5G2O5d1CGTPEYGcliMnpWVbEOfuw2Kp0lHWW5Z1PUrbSNPlvbtysUS5IAyzH0A7k+leX65dTeKdUOp2P2mP7CiQy2MlmXvrV9+d8cedoLDHzk8YqnqWs3nivd/aMwSwjujE0CW+2W1m37IhG2dzydzxtAJr0fRdClR7bUtaS2m1uCNoPtcGV8yPPBYepA/DJxUpKkrvcq/O7LYm8KQ6pB4ctU1iWSS8+YsZCC4UsSoYjgsBgE+tef/ABb8bi3gfw3p0v76Qf6ZIp+4p/g+p7+3Heuh+Ifj2LwtYm0s2V9WnX92vXyh/fb+g714HYWN/wCINYS1t1e4vLqQkljkknksx/UmtcPR5n7WexFWdlyRNjwN4Ul8V6+kDBhZQ4kupB2X+6Pc9PzPavpKKKOCFIYkVI41CoqjAUDoBWP4V8NWvhbRIrC3w0n3p5ccyP3P07AelbdYYit7SWmxpSp8i8wooorA1CiiigAooooA8l+Jfw8Mxm17RocycvdW6D73q6j19R+PrXnHhfxRqHhTVVvbJsqeJoGPyyr6H39D2r6hryn4gfDH7U0ur6BEBOctPaKMB/Vk9/bv25691CumvZ1Njmq0mnzQPRPDXifTvFOmLeWEvI4lhb78TehH9e9ZGteBLO6upL62aUfO9y9gZD5FzcY+VmXOByOfXvXz9pGs6l4c1Rbuwme3uIztZSOGHdWHce1e+eDPiRpnihEtpytnqeMGBm+WQ+qHv9Ov161NWhOk+aGw4VI1FaW5x2g3mp6fqEWofabq6mgDz6sHeRZFGxiYmhfgkMvysn4gV6L4Y8WweJFZBbSWs6xJOEZ1cNG2cMGU46ggjqCMVf13RYddsFtpJZIZI5VmhmjxujkU5VsHg/Q1laRojeDfD2pyJKb6cmW72rEIwW252Io+6OOg9aynOM1fqXGLi/I6G8tLW+t2tryCKeGTgxyqGDfga841/wCDGlXpabR7l7CU8+U/7yM/1H5n6VladrmrS3lhq+prFqipBNdOXETQ2w2FkKso3RnK7SGH0ya7bwn4ql1G1tYNYT7Pqd1E90kQTjyM/K2QTgYI645B4p2qUtYsV4T0aPF9X+GfinSCxOnNdxD/AJaWh8zP/AfvfpXLMtzZXGGWW3mQ9CCrD+tfXMFxDcwLPBNHLC4ysiMGVh6giqedH1yBM/Yr+KRdyZ2yBlzjI68Z4raONl9pEPDroz5ntfGPiSzAEGuX4UdFadmA/A5rRX4l+MUGBrcv4xRn+a17nc/D7wndkmTQ7Vc/88gY/wD0EiqDfCnwaxz/AGWy/S5l/wDiqr6zRe8fyF7GotmeMSfEjxfKMNrk4/3URf5Csq78Sa5fgi71i+mU9Ve4Yr+WcV79H8K/B0Zz/ZJb/euJT/7NWpa+CvDFkQYdDsQw6F4g5H4tmj61SXwx/IPYze7PmOy02+1KXy7KzuLmTPSGMuf0rtdG+EPiTUir3ixadCepmbc+PZV/qRXv0LWsbG2gMKsgyYkIBUfQdKdPcwWwQzzRxB3CKXYLuY9AM9SfSoljZvSKsVHDxW7OM8PfCvw9oZSaeI6jdLz5lyAVB9k6fnmuxe5toJobZ5okllyIoywBfAycDvgVzWveN7fTLS5ayt2u7i3uls5VJ2LFIy5UsT/CTgZFcdq2jXU17c6O0KJfWCjVNLhjYmOYMQZoznlvmBA6fe9Kx5ZVHebLvGGkUdlqPjaz+0zaZpTebqR3xW7SxsLd51GTHv4Bb2HfvXIWlpfeIbG1lnub7VLHUmNvqMEhG/Troch0H8AU9vTHXNXYvB134jv2vntxpmnzsk0SOhS6tHXlgg+6u5/mLdSO3p6Hb2lppyzyxxxRGRvMnl2hS7Y5ZiO/FNyjBWjuJJy32MjRvCtpZ/Zr3UbezutajTbJfLDtZyOA3+9jGT1NY/j34h2vha3aztClxqzr8sfVYc/xP/Qd657xv8W4rdZNO8Nuss33XvcZVP8Ac9T79PTNeSWNhqPiDVRb2sct3eTsSSTkk92Yn9Sa2pYdy9+rsROql7sBCdR8Qavk+beX93J9Wdj/AJ+gr37wH4Ig8J6f5s22XU51/fSjog/uL7ep7/lR4I8B2nhO286UrcanIuJJ8cIP7qeg9+/6V2FRiMRz+7DYqlS5feluFFFFchuFFFFABRRRQAUUUUAFFFFAHEeNPhzYeJw93albTU8f60D5ZfZx/Uc/WvDNY0TU/DuofZdQt5LeZTlG7N7q3evqqqWqaRYa1ZNaajax3ELfwuOQfUHqD7iuqjiZQ0eqMalFS1W5414T+Luo6UEtNaV7+0HAlB/fIPqfvfjz717LoniTSPEVt52mXsc4AyyZw6fVTyK8h8TfB68tS9zoEpuoev2aUgSL9D0b9D9a85xqGjah/wAvNleQn3jdD/MVu6NKsrwdmZKpOnpI+nNU8I6RqWm31olrFZteqBNPaxqkjYIPJxzyOc9a5vXfDXiKK81S80j7LdteafHZIZH8uSEDhtoA285LdRg/rwehfGPXNOCxanFHqUI43N8kn/fQ4P4j8a9G0j4r+F9UCrLdPYSn+C6XA/76GR+ZFYOlWp9Lo0U6c/I4/wAQQJobarb3kupQtp9lBFovkeYsZ+UBmJX5SS/Xd6/SrtrezeHLi7gtjbLcadZ2emW5e3Ll55PncDYNzHqducZr1K2u7S/h8y1uIbiI/wAUTh1P4iqt/oGlalDJFd2MLrJIsrEDaxcdG3DByPXNT7ZbSQ/Z9UzjLTx3q66XO0tlDc3cWqx6dHlGg8wuO6knaRUepeNdf+zmCGztre+ttWhsp9k25JA+CACycZ6E4yOtdXH4O0WGKOKC2aKOO+W/CrI3+uAwDyT+VQ3ngrTLyO7UzXcT3N6t8ZY5AGSVRgFcjp7HNJTp32HyztuZJ8fzDxadGeytoVW5W3ZZrkxytn/looZQrLngDdk+lVfiT/aEGr+HrvT55VdJJcRq5CyOqh1Ujoc7WX8a37jwRp93qIuri71CSPz1uTatPmIyDvjGR06A4ravdMs9Ra1a7h8xrWYTwncRtcZAPHXqeDxSU4RkmkPlk00zyPS737V4r1TVbKWdY9ZtbtIWg/1mYwjDb/tYyPrUOj6Vfa5HdW1iJhBeWaTxSkSslteRsGAZ36sRkMQAMnAHFev2mj6bYLGtrY28IjZmTZGBtLfeI9M96TUdb0rSELahqFtbDGcSyBSfoOpq/bdIon2f8zOTtfCOo6xdavda+tvaxarbJDNaWzbyHTG2TeRjI54we1dlFY28Zt3ZBLPBH5aTyAGQDjPPvgZrgNZ+M2g2QZNNhn1CUdCB5cf5nn9K811/4neJNdDRC5FlbNx5Vrlcj3bqfzx7VUaFWpvohOpCG2p7R4m+IOg+GVeOe4FxeDpbQEM2f9rsv4/lXiXiv4haz4qZoZH+y2GeLWE8H/ePVv5e1YekaFqmv3XkabZy3L5+ZlHyr/vMeB+Net+F/hBaWRS61+RbuYci2jyIl+p6t+g+tbqFHD6y1Zk5VKui2POvCngbVvFcwaCPyLIHD3Ug+Uey/wB4+w/EivevDXhXTPC1j9nsIv3jD97O/LyH3Pp7DitiKKOCJYoY1jjQYVEGAo9AKfXJWxEqmmyN6dJQ9QooorA1CiiigAooooAKKKKACiiigAooooAKKKKACs7V9B0rXYPJ1OxhuVAwpZfmX6MOR+BrRopptO6Bq+55PrXwWgkLSaJqJiPUQ3Q3L+DDkfka4DVfAHifSCxn0qaWMf8ALS3/AHq49fl5H4gV9L0V0wxdSO+pjKhF7aHyVFPdWM+6GWa3mU4JRijD8q37P4heLLEARa3csB2mxL/6EDX0Ve6Tp2pLtvrC2uR/02iV/wCYrnbv4ZeErsknShEx7wyuv6Zx+lbfW6cvjiZ+wkvhZ5hB8YvFcQ+d7Ob3kgx/6CRVtfjb4iA+ax0w/wDbOQf+z1103wZ8NyHMdzqMXssqkfqtVW+CekZ+XVL4D3CH+lHtMM+gclbuc0/xs8SMMJZ6Ynv5Tn/2eqFx8XPF04Oy7t4M/wDPO3X/ANmzXap8FNFB+fU78/7uwf8Aspq9B8HvDEWPMa+n/wCukwH/AKCBR7TDLp+AclZ9Tx++8Z+JdRBFzrd6ynqqSlFP4LgVkwW13qE+y3hmuZm/hjQux/Kvo+z+H3hSxIMWi27kd5sy/wDoRNdDb2tvaRCK2gihjHRY0Cj8hQ8ZCPwRD6vJ/Ez580n4W+J9TKtJapYxH+O6baf++Rk/mBXoWh/B7RbArLqc0uoSjnYf3cf5Dk/n+FejUVzzxVSXWxrGjCJDa2ltY2629pbxQQp92OJAqj8BU1FFc5qFFFFABRRRQAUUUUAFFFFAH//Z";
+        var apiData = { listes: [], total_votes: 0, total_electeurs: 0 };
+
+        function addMand(v) {
+            v = v || "";
+            var id = "md" + Date.now();
+            var el = document.createElement("div");
+            el.id = id;
+            el.className = "flex gap-2 items-center";
+            el.innerHTML = "<input type=\"text\" class=\"inp\" placeholder=\"الاسم الكامل\" value=\"" + v + "\"><button class=\"del-btn\" onclick=\"document.getElementById('" + id + "').remove()\">✖</button>";
+            document.getElementById("mandRows").appendChild(el);
+        }
+        addMand(); addMand();
+
+        async function loadAPI() {
+            var sp = document.getElementById("spinner");
+            var st = document.getElementById("status");
+            sp.style.display = "block";
+            st.textContent = "جاري التحميل...";
+            st.style.color = "";
+            try {
+                var res = await fetch("/api/resultats");
+                var data = await res.json();
+                var total = data.total_votes || 0;
+                apiData = {
+                    listes: (data.listes || []).map(function (l) {
+                        return { nom: l.nom, votes: parseInt(l.votes) || 0, pct: total > 0 ? ((l.votes / total) * 100).toFixed(1) + " %" : "0 %" };
+                    }),
+                    total_votes: total,
+                    total_electeurs: data.total_electeurs || 0
+                };
+                var c = document.getElementById("listesRows");
+                c.innerHTML = "";
+                if (!apiData.listes.length) {
+                    c.innerHTML = "<p class=\"text-gray-500 text-sm text-center py-3\">لا توجد لوائح</p>";
+                } else {
+                    var medals = ["🥇 ", "🥈 ", "🥉 "];
+                    apiData.listes.forEach(function (l, i) {
+                        var row = document.createElement("div");
+                        row.className = "r-row";
+                        row.innerHTML = "<span style=\"color:#fff;font-weight:700\">" + (medals[i] || "") + l.nom + "</span>"
+                            + "<span style=\"text-align:center;color:#7dd3fc;font-weight:700\">" + l.votes + " 🗳️</span>"
+                            + "<span style=\"text-align:center;color:#6ee7b7;font-weight:800\">" + l.pct + "</span>";
+                        c.appendChild(row);
+                    });
+                }
+                document.getElementById("pvVotants").value = total;
+                document.getElementById("pvNbListes").value = apiData.listes.length;
+                document.getElementById("pvPresents").value = apiData.total_electeurs;
+                sp.style.display = "none";
+                st.textContent = "✅ " + apiData.listes.length + " لوائح — المصوتون: " + total + " / " + apiData.total_electeurs;
+                st.style.color = "#6ee7b7";
+            } catch (e) {
+                sp.style.display = "none";
+                st.textContent = "⚠️ تعذر تحميل النتائج";
+                st.style.color = "#fcd34d";
+            }
+        }
+        window.addEventListener("DOMContentLoaded", loadAPI);
+
+        function getData() {
+            var mands = [];
+            document.querySelectorAll("#mandRows > div").forEach(function (row) {
+                var v = row.querySelector("input") && row.querySelector("input").value.trim();
+                if (v) mands.push(v);
+            });
+            return {
+                date: document.getElementById("pvDate").value,
+                heure: document.getElementById("pvHeure").value,
+                lieu: document.getElementById("pvLieu").value,
+                presents: document.getElementById("pvPresents").value,
+                mandataires: mands,
+                bureau: {
+                    rais: document.getElementById("b_rais").value,
+                    naib: document.getElementById("b_naib").value,
+                    mal: document.getElementById("b_mal").value,
+                    thaq: document.getElementById("b_thaq").value,
+                    elaq: document.getElementById("b_elaq").value,
+                    ilam: document.getElementById("b_ilam").value,
+                    tandhim: document.getElementById("b_tandhim").value,
+                    riyada: document.getElementById("b_riyada").value
+                },
+                commission: {
+                    rais: document.getElementById("c_rais").value,
+                    naib: document.getElementById("c_naib").value,
+                    maqar: document.getElementById("c_maqar").value,
+                    muraqib: document.getElementById("c_muraqib").value
+                }
+            };
+        }
+
+        function fmtDate(s) {
+            if (!s) return "............";
+            var p = s.split("-");
+            var months = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+            return parseInt(p[2]) + " " + months[parseInt(p[1]) - 1] + " " + p[0];
+        }
+
+        function tdStyle(isHeader) {
+            return isHeader
+                ? "font-weight:800;color:#166534;border:1px solid #c8e6c8;padding:7px 9px;"
+                : "font-weight:700;border:1px solid #c8e6c8;padding:7px 9px;";
+        }
+
+        function generatePDF() {
+            var d = getData();
+            var listes = apiData.listes;
+            var total = apiData.total_votes;
+            var electeurs = apiData.total_electeurs;
+            var taux = electeurs > 0 ? ((total / electeurs) * 100).toFixed(1) : "0";
+
+            // Build rows as plain string concatenation
+            var listesHTML = "";
+            for (var i = 0; i < listes.length; i++) {
+                var bg = i % 2 === 0 ? "#ffffff" : "#f0faf0";
+                listesHTML += "<tr style=\"background:" + bg + "\">"
+                    + "<td style=\"text-align:center;font-weight:700;border:1px solid #c8e6c8;padding:7px\">" + (i + 1) + "</td>"
+                    + "<td style=\"font-weight:700;border:1px solid #c8e6c8;padding:7px\">" + listes[i].nom + "</td>"
+                    + "<td style=\"text-align:center;font-weight:700;color:#166534;border:1px solid #c8e6c8;padding:7px\">" + listes[i].votes + "</td>"
+                    + "<td style=\"text-align:center;font-weight:800;color:#166534;border:1px solid #c8e6c8;padding:7px\">" + listes[i].pct + "</td>"
+                    + "</tr>";
+            }
+
+            var bureauData = [
+                ["الرئيس", d.bureau.rais],
+                ["نائب الرئيس", d.bureau.naib],
+                ["مسؤول المالية", d.bureau.mal],
+                ["مسؤول الثقافة", d.bureau.thaq],
+                ["العلاقات الخارجية", d.bureau.elaq],
+                ["مسؤول الإعلام", d.bureau.ilam],
+                ["مسؤول التنظيم", d.bureau.tandhim],
+                ["مسؤول الرياضة", d.bureau.riyada]
+            ];
+            var bureauHTML = "";
+            var bi = 0;
+            for (var i = 0; i < bureauData.length; i++) {
+                if (!bureauData[i][1]) continue;
+                var bg = bi % 2 === 0 ? "#ffffff" : "#f0faf0";
+                bureauHTML += "<tr style=\"background:" + bg + "\">"
+                    + "<td style=\"font-weight:800;color:#166534;width:190px;border:1px solid #c8e6c8;padding:7px\">" + bureauData[i][0] + "</td>"
+                    + "<td style=\"font-weight:700;border:1px solid #c8e6c8;padding:7px\">" + bureauData[i][1] + "</td>"
+                    + "</tr>";
+                bi++;
+            }
+
+            var mandHTML = "";
+            for (var i = 0; i < d.mandataires.length; i += 2) {
+                var bg = Math.floor(i / 2) % 2 === 0 ? "#ffffff" : "#f0faf0";
+                mandHTML += "<tr style=\"background:" + bg + "\">"
+                    + "<td style=\"font-weight:700;border:1px solid #c8e6c8;padding:7px\">" + d.mandataires[i] + "</td>"
+                    + "<td style=\"font-weight:700;border:1px solid #c8e6c8;padding:7px\">" + (d.mandataires[i + 1] || "") + "</td>"
+                    + "</tr>";
+            }
+
+            var commData = [
+                ["الرئيس", d.commission.rais],
+                ["نائب الرئيس", d.commission.naib],
+                ["المقرر", d.commission.maqar],
+                ["المراقب", d.commission.muraqib]
+            ];
+            var commHTML = "";
+            for (var i = 0; i < commData.length; i++) {
+                if (!commData[i][1]) continue;
+                var bg = i % 2 === 0 ? "#ffffff" : "#f0faf0";
+                commHTML += "<tr style=\"background:" + bg + "\">"
+                    + "<td style=\"font-weight:800;color:#166534;width:150px;border:1px solid #c8e6c8;padding:7px\">" + commData[i][0] + "</td>"
+                    + "<td style=\"font-weight:700;border:1px solid #c8e6c8;padding:7px\">" + commData[i][1] + "</td>"
+                    + "</tr>";
+            }
+
+            var mandSection = "";
+            if (d.mandataires.length > 0) {
+                mandSection = "<div style=\"display:flex;align-items:center;gap:8px;margin:12px 0 6px\">"
+                    + "<div style=\"width:5px;height:18px;background:#006633;border-radius:2px\"></div>"
+                    + "<h2 style=\"font-size:11px;font-weight:900;color:#006633\">المناديب المنتخبون</h2>"
+                    + "<div style=\"flex:1;height:1px;background:#ddd\"></div></div>"
+                    + "<table style=\"width:100%;border-collapse:collapse;font-size:10px\"><tbody>" + mandHTML + "</tbody></table>";
+            }
+
+            var css = "<style>"
+                + "* {margin:0;padding:0;box-sizing:border-box}"
+                + "body {font-family:'Cairo',sans-serif;color:#1a1a1a;background:#fff;direction:rtl;font-size:11px}"
+                + "@page {size:A4;margin:14mm 16mm 16mm 16mm}"
+                + "@media print {body {-webkit-print-color-adjust:exact;print-color-adjust:exact} .no-print {display:none}}"
+                + "table {width:100%;border-collapse:collapse;font-size:10px;margin-bottom:4px}"
+                + "th {background:#006633;color:#fff;font-weight:800;padding:6px 9px;text-align:right;font-size:10px}"
+                + ".print-btn {position:fixed;top:15px;left:15px;background:#006633;color:#fff;border:none;padding:10px 18px;border-radius:8px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:13px;font-weight:800;z-index:999}"
+                + "</style>";
+
+            var secHdr = function (title) {
+                return "<div style=\"display:flex;align-items:center;gap:8px;margin:12px 0 6px\">"
+                    + "<div style=\"width:5px;height:18px;background:#006633;border-radius:2px\"></div>"
+                    + "<h2 style=\"font-size:11px;font-weight:900;color:#006633\">" + title + "</h2>"
+                    + "<div style=\"flex:1;height:1px;background:#ddd\"></div></div>";
+            };
+
+            var pv = "<!DOCTYPE html><html lang=\"ar\" dir=\"rtl\"><head><meta charset=\"UTF-8\">"
+                + "<title>محضر الانتخابات</title>"
+                + "<link href=\"https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap\" rel=\"stylesheet\">"
+                + css + "</head><body>"
+
+                + "<button class=\"print-btn no-print\" onclick=\"window.print()\">🖶 طباعة / PDF</button>"
+
+                // Header
+                + "<div style=\"display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:3px solid #006633;margin-bottom:4px\">"
+                + "<div></div>"
+                + "<div style=\"text-align:right\">"
+                + "<div style=\"font-size:14px;font-weight:900;color:#006633\">رابطة الطلاب الموريتانيين في المغرب</div>"
+                + "<div style=\"font-size:11px;font-weight:700;color:#333;margin-top:2px\">فرع مراكش</div>"
+                + "<div style=\"font-size:9px;color:#888;margin-top:2px\">وحدة — إرادة — عمل</div>"
+                + "</div>"
+                + "<img src=\"" + LOGO + "\" style=\"width:65px;height:65px;object-fit:contain\">"
+                + "</div>"
+
+                // Gold line
+                + "<div style=\"height:3px;background:linear-gradient(to left,#d4af37,#f0d060,#d4af37);margin-bottom:14px\"></div>"
+
+                // PV title
+                + "<div style=\"background:#006633;color:#fff;text-align:center;padding:9px 20px;border-radius:4px;margin-bottom:12px\">"
+                + "<h1 style=\"font-size:13px;font-weight:900\">محضر الجمع العام الانتخابي</h1>"
+                + "<p style=\"font-size:9.5px;opacity:.85;margin-top:2px\">فرع الرابطة في مراكش — " + fmtDate(d.date) + "</p>"
+                + "</div>"
+
+                // Basmala
+                + "<div style=\"text-align:center;font-size:13px;font-weight:700;margin-bottom:6px\">بسم الله الرحمن الرحيم</div>"
+
+                // Intro
+                + "<div style=\"font-size:10px;line-height:2;color:#333;text-align:justify;background:#f9fdf9;border-right:4px solid #006633;padding:8px 12px;border-radius:0 4px 4px 0;margin-bottom:12px\">"
+                + "الحمد لله وحده، والصلاة والسلام على من لا نبي بعده،<br><br>"
+                + "بتاريخ <strong>" + fmtDate(d.date) + "</strong>"
+                + (d.heure ? " على تمام الساعة <strong>" + d.heure + "</strong>" : "")
+                + (d.lieu ? " بـ<strong>" + d.lieu + "</strong>" : "")
+                + " انعقد الجمع العام السنوي لتجديد مكتب فرع الرابطة بمراكش، وذلك عملاً بمقتضيات القانون الأساسي للرابطة. وبعد إجراء عملية الاقتراع وفرز النتائج النهائية بحضور ممثلي اللوائح المترشحة، جاءت النتائج على الشكل التالي:"
+                + "</div>"
+
+                // Info grid
+                + "<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:12px\">"
+                + "<div style=\"background:#f0f9f0;border:1px solid #c8e6c8;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center\"><span style=\"font-size:8.5px;font-weight:800;color:#006633;white-space:nowrap\">📅 التاريخ:</span><span style=\"font-size:10px;font-weight:700\">" + fmtDate(d.date) + "</span></div>"
+                + "<div style=\"background:#f0f9f0;border:1px solid #c8e6c8;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center\"><span style=\"font-size:8.5px;font-weight:800;color:#006633;white-space:nowrap\">⏰ الساعة:</span><span style=\"font-size:10px;font-weight:700\">" + (d.heure || "............") + "</span></div>"
+                + "<div style=\"background:#f0f9f0;border:1px solid #c8e6c8;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center\"><span style=\"font-size:8.5px;font-weight:800;color:#006633;white-space:nowrap\">📍 المكان:</span><span style=\"font-size:10px;font-weight:700\">" + (d.lieu || "............") + "</span></div>"
+                + "<div style=\"background:#f0f9f0;border:1px solid #c8e6c8;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center\"><span style=\"font-size:8.5px;font-weight:800;color:#006633;white-space:nowrap\">👥 الحاضرون:</span><span style=\"font-size:10px;font-weight:700\">" + (d.presents || "...") + " طالباً</span></div>"
+                + "<div style=\"background:#f0f9f0;border:1px solid #c8e6c8;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center\"><span style=\"font-size:8.5px;font-weight:800;color:#006633;white-space:nowrap\">🗳️ المصوتون:</span><span style=\"font-size:10px;font-weight:700\">" + total + "</span></div>"
+                + "<div style=\"background:#f0f9f0;border:1px solid #c8e6c8;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center\"><span style=\"font-size:8.5px;font-weight:800;color:#006633;white-space:nowrap\">📋 اللوائح:</span><span style=\"font-size:10px;font-weight:700\">" + listes.length + "</span></div>"
+                + "</div>"
+
+                // Résultats
+                + secHdr("نتائج الاقتراع")
+                + "<table><thead><tr>"
+                + "<th style=\"width:35px;text-align:center\">الرتبة</th>"
+                + "<th>اسم اللائحة</th>"
+                + "<th style=\"width:100px;text-align:center\">الأصوات</th>"
+                + "<th style=\"width:75px;text-align:center\">النسبة</th>"
+                + "</tr></thead><tbody>"
+                + listesHTML
+                + "<tr style=\"background:#e8f5e8\"><td colspan=\"4\" style=\"font-weight:800;color:#166534;text-align:center;border-top:2px solid #006633;padding:6px\">"
+                + "إجمالي الأصوات: " + total + " &nbsp;|&nbsp; الناخبون المسجلون: " + electeurs + " &nbsp;|&nbsp; نسبة المشاركة: " + taux + " %"
+                + "</td></tr></tbody></table>"
+
+                // Bureau
+                + secHdr("المكتب التنفيذي المنتخب")
+                + "<table><thead><tr><th style=\"width:190px\">المنصب</th><th>الاسم الكامل</th></tr></thead><tbody>" + bureauHTML + "</tbody></table>"
+
+                // Mandataires
+                + mandSection
+
+                // Commission
+                + secHdr("اللجنة المستقلة للانتخابات")
+                + "<table><thead><tr><th style=\"width:150px\">الصفة</th><th>الاسم</th></tr></thead><tbody>" + commHTML + "</tbody></table>"
+
+                // Closing
+                + "<div style=\"text-align:center;font-size:10px;color:#555;font-style:italic;border-top:1px solid #eee;padding-top:10px;margin-top:12px\">"
+                + "حُرِّر هذا المحضر في مدينة مراكش بتاريخ " + fmtDate(d.date) + "، ليكون وثيقة رسمية تؤرخ لهذا الاستحقاق الانتخابي."
+                + "</div>"
+
+                // Signatures
+                + "<div style=\"display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px\">"
+                + "<div style=\"border:1px solid #006633;border-radius:4px;padding:10px;text-align:center\">"
+                + "<div style=\"font-size:9px;font-weight:800;color:#006633;margin-bottom:20px\">رئيس اللجنة<br>" + (d.commission.rais || "") + "</div>"
+                + "<div style=\"border-top:1px dashed #aaa;margin:0 6px\"></div><div style=\"font-size:8px;color:#aaa;margin-top:3px\">التوقيع والختم</div></div>"
+                + "<div style=\"border:1px solid #006633;border-radius:4px;padding:10px;text-align:center\">"
+                + "<div style=\"font-size:9px;font-weight:800;color:#006633;margin-bottom:20px\">نائب الرئيس<br>" + (d.commission.naib || "") + "</div>"
+                + "<div style=\"border-top:1px dashed #aaa;margin:0 6px\"></div><div style=\"font-size:8px;color:#aaa;margin-top:3px\">التوقيع والختم</div></div>"
+                + "<div style=\"border:1px solid #006633;border-radius:4px;padding:10px;text-align:center\">"
+                + "<div style=\"font-size:9px;font-weight:800;color:#006633;margin-bottom:20px\">المقرر<br>" + (d.commission.maqar || "") + "</div>"
+                + "<div style=\"border-top:1px dashed #aaa;margin:0 6px\"></div><div style=\"font-size:8px;color:#aaa;margin-top:3px\">التوقيع والختم</div></div>"
+                + "</div>"
+
+                // Footer
+                + "<div style=\"text-align:center;font-size:8px;color:#aaa;margin-top:10px;padding-top:6px;border-top:1px solid #eee\">"
+                + "رابطة الطلاب الموريتانيين في المغرب — فرع مراكش © 2026</div>"
+
+                + "</body></html>";
+
+            var win = window.open("", "_blank", "width=860,height=720");
+            win.document.write(pv);
+            win.document.close();
+            win.onload = function () { setTimeout(function () { win.print(); }, 1000); };
+        }
+    </script>
+</body>
+
+</html>
