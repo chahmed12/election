@@ -122,6 +122,12 @@ function createTables() {
         FOREIGN KEY (electeur_id) REFERENCES electeurs(id) ON DELETE CASCADE,
         FOREIGN KEY (liste_id) REFERENCES listes(id) ON DELETE CASCADE
     )`);
+    // Membres autorisés
+    db.query(`CREATE TABLE IF NOT EXISTS membres_autorises (
+    id SERIAL PRIMARY KEY,
+    telephone VARCHAR(20) NOT NULL UNIQUE,
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`);
 }
 
 // ═══════════════════════════════════════
@@ -156,31 +162,45 @@ app.post('/api/inscription', (req, res) => {
 
     const cleaned = telephone.replace(/\s/g, '');
 
-    db.query("SELECT * FROM electeurs WHERE telephone = $1", [cleaned], (err, result) => {
+    // ✅ VÉRIFICATION : le numéro doit être dans la liste des membres autorisés
+    db.query("SELECT id FROM membres_autorises WHERE telephone = $1", [cleaned], (err, authResult) => {
         if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
 
-        if (result.rows.length > 0) {
-            const electeur = result.rows[0];
-            if (electeur.is_registered) return res.json({ success: false, message: 'هذا الحساب مسجل مسبقاً، يرجى تسجيل الدخول' });
-
-            bcrypt.hash(password, BCRYPT_ROUNDS, (hErr, hash) => {
-                if (hErr) return res.status(500).json({ success: false, message: 'Erreur hashage' });
-                db.query("UPDATE electeurs SET password=$1, is_registered=true WHERE id=$2", [hash, electeur.id], (err) => {
-                    if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
-                    req.session.electeur = { id: electeur.id, telephone: cleaned, has_voted: electeur.has_voted, is_eligible: electeur.is_eligible };
-                    res.json({ success: true, message: `تم التسجيل بنجاح! مرحباً`, electeur: { telephone: cleaned, has_voted: electeur.has_voted } });
-                });
-            });
-        } else {
-            bcrypt.hash(password, BCRYPT_ROUNDS, (hErr, hash) => {
-                if (hErr) return res.status(500).json({ success: false, message: 'Erreur hashage' });
-                db.query("INSERT INTO electeurs (telephone, password, is_registered, is_eligible) VALUES ($1,$2,true,false) RETURNING id", [cleaned, hash], (err, r) => {
-                    if (err) return res.status(500).json({ success: false, message: 'Erreur lors de l\'inscription' });
-                    req.session.electeur = { id: r.rows[0].id, telephone: cleaned, has_voted: false, is_eligible: false };
-                    res.json({ success: true, message: 'تم إنشاء الحساب! سيتم مراجعة طلبك من طرف الإدارة', electeur: { telephone: cleaned, has_voted: false } });
-                });
+        if (authResult.rows.length === 0) {
+            return res.json({
+                success: false,
+                message: 'هذا الرقم غير مسجل في قائمة أعضاء الرابطة. يرجى التواصل مع الإدارة'
             });
         }
+
+        db.query("SELECT * FROM electeurs WHERE telephone = $1", [cleaned], (err, result) => {
+            if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+
+            if (result.rows.length > 0) {
+                const electeur = result.rows[0];
+                if (electeur.is_registered) return res.json({ success: false, message: 'هذا الحساب مسجل مسبقاً، يرجى تسجيل الدخول' });
+
+                bcrypt.hash(password, BCRYPT_ROUNDS, (hErr, hash) => {
+                    if (hErr) return res.status(500).json({ success: false, message: 'Erreur hashage' });
+                    // ✅ is_eligible = true directement
+                    db.query("UPDATE electeurs SET password=$1, is_registered=true, is_eligible=true WHERE id=$2", [hash, electeur.id], (err) => {
+                        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+                        req.session.electeur = { id: electeur.id, telephone: cleaned, has_voted: electeur.has_voted, is_eligible: true };
+                        res.json({ success: true, message: 'تم التسجيل بنجاح! مرحباً', electeur: { telephone: cleaned, has_voted: electeur.has_voted } });
+                    });
+                });
+            } else {
+                bcrypt.hash(password, BCRYPT_ROUNDS, (hErr, hash) => {
+                    if (hErr) return res.status(500).json({ success: false, message: 'Erreur hashage' });
+                    // ✅ is_eligible = true directement
+                    db.query("INSERT INTO electeurs (telephone, password, is_registered, is_eligible) VALUES ($1,$2,true,true) RETURNING id", [cleaned, hash], (err, r) => {
+                        if (err) return res.status(500).json({ success: false, message: 'Erreur lors de l\'inscription' });
+                        req.session.electeur = { id: r.rows[0].id, telephone: cleaned, has_voted: false, is_eligible: true };
+                        res.json({ success: true, message: 'تم إنشاء حسابك بنجاح! يمكنك التصويت الآن 🎉', electeur: { telephone: cleaned, has_voted: false } });
+                    });
+                });
+            }
+        });
     });
 });
 
