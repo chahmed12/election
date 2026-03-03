@@ -156,8 +156,14 @@
                             placeholder="0"></div>
                     <div><label class="lbl">عدد المصوتين</label><input type="number" id="pvVotants" class="inp" readonly
                             style="opacity:.8"></div>
-                    <div><label class="lbl">عدد اللوائح</label><input type="number" id="pvNbListes" class="inp" readonly
-                            style="opacity:.8"></div>
+                    <div><label class="lbl">عدد اللوائح</label><input type="text" id="pvNbListes" class="inp" readonly
+                            value="لائحة واحدة" style="opacity:.8"></div>
+                    <div><label class="lbl">✅ المصوتون بـ«نعم»</label><input type="number" id="pvOui" class="inp"
+                            placeholder="0"></div>
+                    <div><label class="lbl">❌ المصوتون بـ«لا»</label><input type="number" id="pvNon" class="inp"
+                            placeholder="0"></div>
+                    <div class="col-span-2"><label class="lbl">⚪ المصوتون بـ«محايد»</label><input type="number"
+                            id="pvAbst" class="inp" placeholder="0"></div>
                 </div>
             </div>
             <div>
@@ -276,6 +282,9 @@
                 heure: document.getElementById("pvHeure").value,
                 lieu: document.getElementById("pvLieu").value,
                 presents: document.getElementById("pvPresents").value,
+                oui: document.getElementById("pvOui").value || "0",
+                non: document.getElementById("pvNon").value || "0",
+                abst: document.getElementById("pvAbst").value || "0",
                 mandataires: mands,
                 bureau: {
                     rais: document.getElementById("b_rais").value,
@@ -309,6 +318,9 @@
             var total = apiData.total_votes;
             var electeurs = apiData.total_electeurs;
             var taux = electeurs > 0 ? ((total / electeurs) * 100).toFixed(1) : "0";
+            var ouiPct = total > 0 ? ((parseInt(d.oui) / total) * 100).toFixed(1) : "0";
+            var nonPct = total > 0 ? ((parseInt(d.non) / total) * 100).toFixed(1) : "0";
+            var abstPct = total > 0 ? ((parseInt(d.abst) / total) * 100).toFixed(1) : "0";
 
             // ====== COULEURS BLEUES ======
             // #003d99 = bleu foncé principal (remplace #006633 vert foncé)
@@ -410,13 +422,15 @@
 
                 // Header
                 + "<div style=\"display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:3px solid #003d99;margin-bottom:4px\">"
-                + "<div></div>"
-                + "<div style=\"text-align:right\">"
+                + "<div style=\"flex:1\"></div>"
+                + "<div style=\"text-align:center;flex:2\">"
                 + "<div style=\"font-size:14px;font-weight:900;color:#003d99\">رابطة الطلاب الموريتانيين في المغرب</div>"
-                + "<div style=\"font-size:11px;font-weight:700;color:#333;margin-top:2px\">فرع مراكش</div>"
+                + "<div style=\"font-size:12px;font-weight:800;color:#003d99;margin-top:3px\">فرع مراكش</div>"
                 + "<div style=\"font-size:9px;color:#888;margin-top:2px\">وحدة — إرادة — عمل</div>"
                 + "</div>"
+                + "<div style=\"flex:1;display:flex;justify-content:flex-end\">"
                 + "<img src=\"" + LOGO + "\" style=\"width:65px;height:65px;object-fit:contain\">"
+                + "</div>"
                 + "</div>"
 
                 // Gold line
@@ -437,7 +451,7 @@
                 + "بتاريخ <strong>" + fmtDate(d.date) + "</strong>"
                 + (d.heure ? " على تمام الساعة <strong>" + d.heure + "</strong>" : "")
                 + (d.lieu ? " بـ<strong>" + d.lieu + "</strong>" : "")
-                + " انعقد الجمع العام السنوي لتجديد مكتب فرع الرابطة بمراكش، وذلك عملاً بمقتضيات القانون الأساسي للرابطة. وبعد إجراء عملية الاقتراع وفرز النتائج النهائية بحضور ممثلي اللوائح المترشحة، جاءت النتائج على الشكل التالي:"
+                + " انعقد الجمع العام السنوي لتجديد مكتب فرع الرابطة بمراكش، وذلك عملاً بمقتضيات القانون الأساسي للرابطة. وبعد إجراء عملية الاقتراع وفرز النتائج النهائية بحضور اللائحة المترشحة، جاءت النتائج على الشكل التالي:"
                 + "</div>"
 
                 // Info grid
@@ -447,7 +461,9 @@
                 + "<div style=\"background:#f0f5fc;border:1px solid #c8d8f0;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center\"><span style=\"font-size:8.5px;font-weight:800;color:#003d99;white-space:nowrap\">📍 المكان:</span><span style=\"font-size:10px;font-weight:700\">" + (d.lieu || "............") + "</span></div>"
                 + "<div style=\"background:#f0f5fc;border:1px solid #c8d8f0;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center\"><span style=\"font-size:8.5px;font-weight:800;color:#003d99;white-space:nowrap\">👥 الحاضرون:</span><span style=\"font-size:10px;font-weight:700\">" + (d.presents || "...") + " طالباً</span></div>"
                 + "<div style=\"background:#f0f5fc;border:1px solid #c8d8f0;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center\"><span style=\"font-size:8.5px;font-weight:800;color:#003d99;white-space:nowrap\">🗳️ المصوتون:</span><span style=\"font-size:10px;font-weight:700\">" + total + "</span></div>"
-                + "<div style=\"background:#f0f5fc;border:1px solid #c8d8f0;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center\"><span style=\"font-size:8.5px;font-weight:800;color:#003d99;white-space:nowrap\">📋 اللوائح:</span><span style=\"font-size:10px;font-weight:700\">" + listes.length + "</span></div>"
+                + "<div style=\"background:#f0f5fc;border:1px solid #c8d8f0;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center\"><span style=\"font-size:8.5px;font-weight:800;color:#22863a;white-space:nowrap\">✅ نعم:</span><span style=\"font-size:10px;font-weight:700\">" + d.oui + " &nbsp;<span style=\"color:#22863a\">(" + ouiPct + " %)</span></span></div>"
+                + "<div style=\"background:#f0f5fc;border:1px solid #c8d8f0;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center\"><span style=\"font-size:8.5px;font-weight:800;color:#c0392b;white-space:nowrap\">❌ لا:</span><span style=\"font-size:10px;font-weight:700\">" + d.non + " &nbsp;<span style=\"color:#c0392b\">(" + nonPct + " %)</span></span></div>"
+                + "<div style=\"background:#f0f5fc;border:1px solid #c8d8f0;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center;grid-column:span 2\"><span style=\"font-size:8.5px;font-weight:800;color:#666;white-space:nowrap\">⚪ محايد:</span><span style=\"font-size:10px;font-weight:700\">" + d.abst + " &nbsp;<span style=\"color:#666\">(" + abstPct + " %)</span></span></div>"
                 + "</div>"
 
                 // Résultats
