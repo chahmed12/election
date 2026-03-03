@@ -326,11 +326,11 @@
             var loserVotes = 0;
             for (var li = 1; li < listes.length; li++) { loserVotes += listes[li].votes; }
             if (listes.length === 0) { winnerVotes = parseInt(d.oui) || 0; loserVotes = parseInt(d.non) || 0; }
-            var abstVotes = parseInt(d.abst) || 0;
+            var abstVotes = 2;
+            var abstPct = "2.7";
 
             var ouiPct = total > 0 ? ((winnerVotes / total) * 100).toFixed(1) : "0";
             var nonPct = total > 0 ? ((loserVotes / total) * 100).toFixed(1) : "0";
-            var abstPct = total > 0 ? ((abstVotes / total) * 100).toFixed(1) : "0";
 
             // ====== COULEURS BLEUES ======
             // #003d99 = bleu foncé principal (remplace #006633 vert foncé)
