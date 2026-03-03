@@ -318,9 +318,19 @@
             var total = apiData.total_votes;
             var electeurs = apiData.total_electeurs;
             var taux = electeurs > 0 ? ((total / electeurs) * 100).toFixed(1) : "0";
-            var ouiPct = total > 0 ? ((parseInt(d.oui) / total) * 100).toFixed(1) : "0";
-            var nonPct = total > 0 ? ((parseInt(d.non) / total) * 100).toFixed(1) : "0";
-            var abstPct = total > 0 ? ((parseInt(d.abst) / total) * 100).toFixed(1) : "0";
+
+            // نعم = أصوات اللائحة الأولى (الأكثر أصواتاً)
+            // لا = مجموع أصوات بقية اللوائح
+            // محايد = ما أدخله المستخدم يدوياً
+            var winnerVotes = listes.length > 0 ? listes[0].votes : parseInt(d.oui) || 0;
+            var loserVotes = 0;
+            for (var li = 1; li < listes.length; li++) { loserVotes += listes[li].votes; }
+            if (listes.length === 0) { winnerVotes = parseInt(d.oui) || 0; loserVotes = parseInt(d.non) || 0; }
+            var abstVotes = parseInt(d.abst) || 0;
+
+            var ouiPct = total > 0 ? ((winnerVotes / total) * 100).toFixed(1) : "0";
+            var nonPct = total > 0 ? ((loserVotes / total) * 100).toFixed(1) : "0";
+            var abstPct = total > 0 ? ((abstVotes / total) * 100).toFixed(1) : "0";
 
             // ====== COULEURS BLEUES ======
             // #003d99 = bleu foncé principal (remplace #006633 vert foncé)
@@ -461,9 +471,9 @@
                 + "<div style=\"background:#f0f5fc;border:1px solid #c8d8f0;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center\"><span style=\"font-size:8.5px;font-weight:800;color:#003d99;white-space:nowrap\">📍 المكان:</span><span style=\"font-size:10px;font-weight:700\">" + (d.lieu || "............") + "</span></div>"
                 + "<div style=\"background:#f0f5fc;border:1px solid #c8d8f0;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center\"><span style=\"font-size:8.5px;font-weight:800;color:#003d99;white-space:nowrap\">👥 الحاضرون:</span><span style=\"font-size:10px;font-weight:700\">" + (d.presents || "...") + " طالباً</span></div>"
                 + "<div style=\"background:#f0f5fc;border:1px solid #c8d8f0;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center\"><span style=\"font-size:8.5px;font-weight:800;color:#003d99;white-space:nowrap\">🗳️ المصوتون:</span><span style=\"font-size:10px;font-weight:700\">" + total + "</span></div>"
-                + "<div style=\"background:#f0f5fc;border:1px solid #c8d8f0;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center\"><span style=\"font-size:8.5px;font-weight:800;color:#22863a;white-space:nowrap\">✅ نعم:</span><span style=\"font-size:10px;font-weight:700\">" + d.oui + " &nbsp;<span style=\"color:#22863a\">(" + ouiPct + " %)</span></span></div>"
-                + "<div style=\"background:#f0f5fc;border:1px solid #c8d8f0;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center\"><span style=\"font-size:8.5px;font-weight:800;color:#c0392b;white-space:nowrap\">❌ لا:</span><span style=\"font-size:10px;font-weight:700\">" + d.non + " &nbsp;<span style=\"color:#c0392b\">(" + nonPct + " %)</span></span></div>"
-                + "<div style=\"background:#f0f5fc;border:1px solid #c8d8f0;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center;grid-column:span 2\"><span style=\"font-size:8.5px;font-weight:800;color:#666;white-space:nowrap\">⚪ محايد:</span><span style=\"font-size:10px;font-weight:700\">" + d.abst + " &nbsp;<span style=\"color:#666\">(" + abstPct + " %)</span></span></div>"
+                + "<div style=\"background:#f0f5fc;border:1px solid #c8d8f0;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center\"><span style=\"font-size:8.5px;font-weight:800;color:#22863a;white-space:nowrap\">✅ نعم:</span><span style=\"font-size:10px;font-weight:700\">" + winnerVotes + " &nbsp;<span style=\"color:#22863a\">(" + ouiPct + " %)</span></span></div>"
+                + "<div style=\"background:#f0f5fc;border:1px solid #c8d8f0;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center\"><span style=\"font-size:8.5px;font-weight:800;color:#c0392b;white-space:nowrap\">❌ لا:</span><span style=\"font-size:10px;font-weight:700\">" + loserVotes + " &nbsp;<span style=\"color:#c0392b\">(" + nonPct + " %)</span></span></div>"
+                + "<div style=\"background:#f0f5fc;border:1px solid #c8d8f0;border-radius:4px;padding:5px 9px;display:flex;gap:5px;align-items:center;grid-column:span 2\"><span style=\"font-size:8.5px;font-weight:800;color:#666;white-space:nowrap\">⚪ محايد:</span><span style=\"font-size:10px;font-weight:700\">" + abstVotes + " &nbsp;<span style=\"color:#666\">(" + abstPct + " %)</span></span></div>"
                 + "</div>"
 
                 // Résultats
